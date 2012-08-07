@@ -27,12 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir.'/formslib.php');
 require_once(dirname(__FILE__) . '/lib.php');
-foreach (glob($CFG->dirroot . '/report/editdates/mod/*dates.php') as $filename) {
-    require($filename);
-}
-foreach (glob($CFG->dirroot . '/report/editdates/blocks/*dates.php') as $filename) {
-    require($filename);
-}
 
 
 /**
@@ -112,10 +106,8 @@ class report_editdates_form extends moodleform {
                 && ( $cm->availablefrom != 0 || $cm->availableuntil != 0) )
                 || ($CFG->enablecompletion && $cm->completionexpected != 0 ) ) {
 
-                    /*
-                     * either of the two settings are available for this module,
-                     * add the module name header
-                     */
+                    // either of the two settings are available for this module,
+                    // add the module name header
 
                     $mform->addElement('static', 'modname', $stractivityname);
                     //Conditional availability
@@ -162,7 +154,7 @@ class report_editdates_form extends moodleform {
                     $addactionbuttons = true;
                 } else {//call get_settings method for the acitivity/module
                     //get instance of the mod's date exractor class
-                    $mod = report_editdates_mod_data_date_extractor::make($cm->modname,
+                    $mod = report_editdates_mod_date_extractor::make($cm->modname,
                          $course);
                     if ($mod) {
                         if ($cmdatesettings = $mod->get_settings($cm)) {
@@ -320,7 +312,7 @@ class report_editdates_form extends moodleform {
             $moderrors = array();
 
             if ($mod =
-                report_editdates_mod_data_date_extractor::make($cm->modname, $course)) {
+                report_editdates_mod_date_extractor::make($cm->modname, $course)) {
                 $moderrors = $mod->validate_dates($cm, $datesettings);
                 if (!empty($moderrors)) {
                     foreach ($moderrors as $errorfield => $errorstr) {

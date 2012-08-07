@@ -103,15 +103,16 @@ abstract class report_editdates_mod_date_extractor {
      * This static function is used to create and cache objects of mod's date extractor classes
      * @param String $modname the name of activity/resource e.g 'assignment', 'quiz'
      */
-    public static function make ($modname, $course) {
+    public static function make($modname, $course) {
         global $CFG;
-        // check if static array already has an object for this mod extractor class
+        // Check if static array already has an object for this mod extractor class.
         if (isset(self::$mod_date_extractor[$modname])) {
             self::$mod_date_extractor[$modname];
         }
-        // Create the new object of this mods date exractor file
+
+        // Create the new object of this mods date exractor file.
         $filename = $CFG->dirroot . '/report/editdates/mod/' . $modname . 'dates.php';
-        if (file_exists($filename)) { //check if file exists
+        if (file_exists($filename)) {
             include_once($filename);
             $classname = 'report_editdates_mod_'.$modname.'_date_extractor';
             if (class_exists($classname)) {
@@ -205,15 +206,15 @@ abstract class report_editdates_block_date_extractor {
      * This static function is used to create and cache objects of block's date extractor classes
      * @param String $blockname the name of the block e.g 'html'
      */
-    public static function make ($blockname, $course) {
+    public static function make($blockname, $course) {
         global $CFG;
-        // check if static array already has an object for this mod extractor class
+        // Check if static array already has an object for this mod extractor class.
         if (isset(self::$block_date_extractor[$blockname])) {
             self::$block_date_extractor[$blockname];
         }
-        // Create the new object of this mods date exractor file
+        // Create the new object of this mods date exractor file.
         $filename = $CFG->dirroot . '/report/editdates/blocks/' . $blockname . 'dates.php';
-        if (file_exists($filename)) { //check if file exists
+        if (file_exists($filename)) {
             include_once($filename);
             $classname = 'report_editdates_block_'.$blockname.'_date_extractor';
             if (class_exists($classname)) {
