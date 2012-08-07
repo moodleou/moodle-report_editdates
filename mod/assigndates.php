@@ -19,13 +19,11 @@ require_once($CFG->dirroot.'/mod/assign/locallib.php');
 class report_editdates_mod_assign_date_extractor
 extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'assign');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $assign = $this->mods[$cm->instance];
         // Availability and due date settings for a mod_assign.
@@ -41,7 +39,6 @@ extends report_editdates_mod_date_extractor {
                 );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['allowsubmissionsfromdate'] != 0 && $dates['duedate'] != 0
@@ -51,7 +48,6 @@ extends report_editdates_mod_date_extractor {
         return $errors;
     }
 
-    //overriden abstract method
     public function save_dates(cm_info $cm, array $dates) {
         global $DB, $COURSE;
 

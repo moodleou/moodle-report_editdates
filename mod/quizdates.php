@@ -17,15 +17,13 @@
 require_once($CFG->dirroot.'/mod/quiz/lib.php');
 
 class report_editdates_mod_quiz_date_extractor
-extends report_editdates_mod_date_extractor {
+        extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'quiz');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $quiz = $this->mods[$cm->instance];
         return array('timeopen' => new report_editdates_date_setting(
@@ -37,7 +35,6 @@ extends report_editdates_mod_date_extractor {
         );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['timeopen'] != 0 && $dates['timeclose'] != 0
@@ -47,22 +44,21 @@ extends report_editdates_mod_date_extractor {
         return $errors;
     }
 
-    //overriden abstract method
     public function save_dates(cm_info $cm, array $dates) {
         parent::save_dates($cm, $dates);
 
-        //fetch module instance from $mods array
+        // Fetch module instance from $mods array.
         $quiz = $this->mods[$cm->instance];
 
         $quiz->instance = $cm->instance;
         $quiz->coursemodule = $cm->id;
 
-        //updating date values
+        // Updating date values.
         foreach ($dates as $datetype => $datevalue) {
             $quiz->$datetype = $datevalue;
         }
 
-        //calling the update event method to change the calender evenrs accordingly
+        // Calling the update event method to change the calender evenrs accordingly.
         quiz_update_events($quiz);
 
     }

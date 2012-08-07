@@ -15,54 +15,49 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 class report_editdates_mod_forumng_date_extractor
-extends report_editdates_mod_date_extractor {
+        extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'forumng');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $forumng = $this->mods[$cm->instance];
         $forumngdatesettings = array();
-        /*
-         * date settings for a forumng exists only forumng is accessed
-         * and rating is restricted within a time range
-         */
+
         if ($forumng->ratingscale != 0) {
             $forumngdatesettings['ratingfrom'] = new report_editdates_date_setting(
-            get_string('ratingfrom', 'forumng'),
-            $forumng->ratingfrom,
-            self::DATETIME, true, 5);
+                                                    get_string('ratingfrom', 'forumng'),
+                                                    $forumng->ratingfrom,
+                                                    self::DATETIME, true, 5);
             $forumngdatesettings['ratinguntil'] = new report_editdates_date_setting(
-            get_string('ratinguntil', 'forumng'),
-            $forumng->ratinguntil,
-            self::DATETIME, true, 5);
+                                                    get_string('ratinguntil', 'forumng'),
+                                                    $forumng->ratinguntil,
+                                                    self::DATETIME, true, 5);
         }
+
         $forumngdatesettings['postingfrom'] = new report_editdates_date_setting(
-        get_string('postingfrom', 'forumng'),
-        $forumng->postingfrom,
-        self::DATETIME, true, 5);
+                                                    get_string('postingfrom', 'forumng'),
+                                                    $forumng->postingfrom,
+                                                    self::DATETIME, true, 5);
         $forumngdatesettings['postinguntil'] = new report_editdates_date_setting(
-        get_string('postinguntil', 'forumng'),
-        $forumng->postinguntil,
-        self::DATETIME, true, 5);
+                                                    get_string('postinguntil', 'forumng'),
+                                                    $forumng->postinguntil,
+                                                    self::DATETIME, true, 5);
         return $forumngdatesettings;
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if (isset($dates['ratingfrom']) && isset($dates['ratinguntil'])
-        && $dates['ratingfrom'] != 0 && $dates['ratinguntil'] != 0
-        && $dates['ratinguntil'] < $dates['ratingfrom']) {
+                && $dates['ratingfrom'] != 0 && $dates['ratinguntil'] != 0
+                && $dates['ratinguntil'] < $dates['ratingfrom']) {
 
             $errors['ratinguntil'] = get_string('timeuntil', 'report_editdates');
         }
         if ($dates['postingfrom'] != 0 && $dates['postinguntil'] != 0
-        && $dates['postinguntil'] < $dates['postingfrom']) {
+                && $dates['postinguntil'] < $dates['postingfrom']) {
             $errors['postinguntil'] = get_string('timeuntil', 'report_editdates');
         }
         return $errors;

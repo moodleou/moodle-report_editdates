@@ -17,16 +17,13 @@
 class report_editdates_mod_chat_date_extractor
                 extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'chat');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $chat = $this->mods[$cm->instance];
-        //chat time date settings for a chat
         return array('chattime' => new report_editdates_date_setting(
                                     get_string('chattime', 'chat'),
                                     $chat->chattime,
@@ -34,30 +31,26 @@ class report_editdates_mod_chat_date_extractor
         );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         return $errors;
     }
 
-    //overriden abstract method
     public function save_dates(cm_info $cm, array $dates) {
-        global $DB, $COURSE;
 
-        //fetch module instance from $mods array
+        // Fetch module instance from $mods array.
         $chat = $this->mods[$cm->instance];
 
         $chat->instance = $cm->instance;
         $chat->coursemodule = $cm->id;
 
-        //updating date values
+        // Updating date values.
         foreach ($dates as $datetype => $datevalue) {
             $chat->$datetype = $datevalue;
         }
 
-        //method name to udpate the instance and associated events
+        // Method name to update the instance and associated events.
         $methodname = $cm->modname.'_update_instance';
-        //calling the method
         $methodname($chat);
     }
 }

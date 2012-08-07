@@ -15,35 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 class report_editdates_mod_externalquiz_date_extractor
-extends report_editdates_mod_date_extractor {
+        extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'externalquiz');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $extquiz = $this->mods[$cm->instance];
-        //availability and due date settings for an externalquiz
         return array('timeopen' => new report_editdates_date_setting(
-        get_string('quizopen', 'externalquiz'),
-        $extquiz->timeopen,
-        self::DATETIME, true, 1),
+                                        get_string('quizopen', 'externalquiz'),
+                                        $extquiz->timeopen,
+                                        self::DATETIME, true, 1),
 
                      'timeclose' => new report_editdates_date_setting(
-        get_string('quizclose', 'externalquiz'),
-        $extquiz->timeclose,
-        self::DATETIME, true, 1)
+                                        get_string('quizclose', 'externalquiz'),
+                                        $extquiz->timeclose,
+                                        self::DATETIME, true, 1)
         );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
-        if ($dates['timeopen'] != 0 && $dates['timeclose'] != 0
-        && $dates['timeclose'] < $dates['timeopen']) {
+        if ($dates['timeopen'] != 0 && $dates['timeclose'] != 0 &&
+                $dates['timeclose'] < $dates['timeopen']) {
             $errors['timeclose'] = get_string('timeclose', 'report_editdates');
         }
         return $errors;

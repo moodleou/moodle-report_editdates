@@ -15,15 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>..
 
 class report_editdates_mod_lesson_date_extractor
-extends report_editdates_mod_date_extractor {
+        extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'lesson');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $mod = $this->mods[$cm->instance];
 
@@ -36,7 +34,6 @@ extends report_editdates_mod_date_extractor {
         );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['available'] != 0 && $dates['deadline'] != 0
@@ -49,18 +46,18 @@ extends report_editdates_mod_date_extractor {
     public function save_dates(cm_info $cm, array $dates) {
         global $DB, $COURSE;
 
-        //fetch module instance from $mods array
+        // Fetch module instance from $mods array.
         $lesson = $this->mods[$cm->instance];
 
-        //updating date values
+        // Updating date values.
         foreach ($dates as $datetype => $datevalue) {
             $lesson->$datetype = $datevalue;
         }
 
         $lesson->timemodified = time();
-        //update DB record
+        // Update DB record.
         $DB->update_record('lesson', $lesson);
-        //update associated calender events
+        // Update associated calender events.
         lesson_process_post_save($lesson);
     }
 }

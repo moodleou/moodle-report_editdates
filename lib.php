@@ -264,7 +264,7 @@ abstract class report_editdates_block_date_extractor {
     public function save_dates(block_base $block, array $dates) {
         global $DB;
 
-        // set the dates in block's config and update the config field in DB.
+        // Set the dates in block's config and update the config field in DB.
         foreach ($this->get_settings($block) as $name => $setting) {
             $block->config->$name = $dates[$name];
         }
@@ -318,101 +318,102 @@ function report_editdates_page_type_list($pagetype, $parentcontext, $currentcont
  */
 function report_editdates_update_dates_by_section($courseid, array $sectionnums, $offset) {
     global $DB, $CFG;
-    //course level updates is not allowed
+
     if ($courseid == SITEID) {
         return false;
     }
-    //return if $sectionnums is not an array
+
     if (!is_array($sectionnums)) {
         return false;
     }
-    //fetch course details
+
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-    //modules in course
     $modinfo = get_fast_modinfo($course);
-    //arrays to store respective date settings
+
     $forceddatesettings = array();
     $moddatesettings = array();
 
-    //looping through each section in the course
+    // Loop through each section in the course.
     foreach ($sectionnums as $sectionnum => $value) {
-        //course modules in the section
+        // Course modules in the section.
         $cms = $modinfo->sections[$sectionnum];
         foreach ($cms as $key => $cmid) {
             $cm = $modinfo->cms[$cmid];
-            //no need to continue if module is not viewable
+
             if (!$cm->has_view()) {
                 continue;
             }
-            //no need to display continue if this module is not visible to user
+
             if (!$cm->uservisible) {
                 continue;
             }
-            //config date settings forced and this is one of the forced date setting
+
+            // Config date settings forced and this is one of the forced date setting.
             if ( ($CFG->enablecompletion || $CFG->enableavailability)
-            && ($cm->completionexpected != 0 || $cm->availablefrom != 0
-            || $cm->availableuntil != 0 ) ) {
-                //competionexpected is set for this module
+                    && ($cm->completionexpected != 0 || $cm->availablefrom != 0
+                    || $cm->availableuntil != 0 ) ) {
+                // Competionexpected is set for this module.
                 if ($cm->completionexpected != 0) {
                     $forceddatesettings[$cm->id]['completionexpected'] =
                     strtotime($offset, $cm->completionexpected);
                 }
-                if ($cm->availablefrom != 0) {            //availablefrom is set for this module
+                if ($cm->availablefrom != 0) {
+                    // Availablefrom is set for this module.
                     $forceddatesettings[$cm->id]['availablefrom'] =
                     strtotime($offset, $cm->availablefrom);
                 }
-                if ($cm->availableuntil != 0) {            //availableuntil is set for this module
+                if ($cm->availableuntil != 0) {
+                    // Availableuntil is set for this module.
                     $forceddatesettings[$cm->id]['availableuntil'] =
                     strtotime($offset, $cm->availableuntil);
                 }
             } else {
-                //it is module date setting
+                // It is module date setting.
 
                 $mod = report_editdates_mod_data_date_extractor::make($cm->modname, $course);
                 if ($mod) {
-                    //received date settings of the module
+                    // Received date settings of the module.
                     if ($cmdatesettings = $mod->get_settings($cm)) {
-                        //loop through each setting and add to the array
+                        // Loop through each setting and add to the array.
                         foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
-                            //value should be updated only if this mod is enabled
+                            // Value should be updated only if this mod is enabled.
                             if ($cmdatesetting->currentvalue != 0 ) {
                                 $moddatesettings[$cm->id][$cmdatetype] =
                                 strtotime($offset, $cmdatesetting->currentvalue);
                             }
-                        }    //end date setting loop
-                    }    //end if condition to check if date settings received
-                }    //end of check if mod date exractor object
+                        }
+                    }
+                }
             }
-        }    //end of $cms loop for each course module in section
-    }    //end of loop for each section in course
-    //transaction started
+        } // End of $cms loop for each course module in section.
+    } // End of loop for each section in course.
+
     $transaction = $DB->start_delegated_transaction();
     try {
-        //updating forced settings applied to modules
+        // Updating forced settings applied to modules.
         foreach ($forceddatesettings as $cmid => $cmdatsettings) {
             $cm = new stdClass();
             $cm->id = $cmid;
             foreach ($cmdatsettings as $datetype => $value) {
                 $cm->$datetype = $value;
             }
-            //update object in course_modules class
+            // Update object in course_modules class.
             $DB->update_record('course_modules', $cm, true);
         }
 
-        //updating mod date settings
+        // Updating mod date settings.
         foreach ($moddatesettings as $cmid => $datesettings) {
             $cm = $modinfo->cms[$cmid];
             $modname = $cm->modname;
 
-            $modinstance =
-                report_editdates_mod_data_date_extractor::make($cm->modname, $course);
-            if ($modinstance) {        //check if class exists
+            $modinstance = report_editdates_mod_data_date_extractor::make($cm->modname, $course);
+            if ($modinstance) {
                 $modinstance->save_dates($cm, $datesettings);
             }
         }
-        //transaction committed
         $transaction->allow_commit();
-    } catch (Exception $e) {        //catch if any exception is caught
-        $transaction->rollback($e);        //rollback transaction if caught exception
+
+    } catch (Exception $e) {
+        $transaction->rollback($e);
     }
 }

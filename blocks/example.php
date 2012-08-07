@@ -46,7 +46,7 @@ class report_editdates_block_html_date_extractor  extends report_editdates_block
     }
 
     public function get_settings(block_base $block) {
-        //Check if title text is a valid date then return the array.
+        // Check if title text is a valid date then return the array.
         $title = $block->title;
         if ((string) (int) $title === $title) {
                 return array('title' => new report_editdates_date_setting

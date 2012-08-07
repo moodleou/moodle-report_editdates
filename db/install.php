@@ -38,11 +38,11 @@ function xmldb_report_editdates_install() {
                 array('capability' => 'coursereport/editdates:view'));
     }
 
-    // This is a hack which is needed for cleanup of original coursereport_completion stuff
+    // This is a hack which is needed for cleanup of original coursereport_completion stuff.
     unset_all_config_for_plugin('coursereport_editdates');
     capabilities_cleanup('coursereport_editdates');
 
-    // Update existing block page patterns
+    // Update existing block page patterns.
     $DB->set_field('block_instances', 'pagetypepattern', 'report-editdates-index',
             array('pagetypepattern' => 'course-report-editdates-index'));
 }

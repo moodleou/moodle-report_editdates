@@ -18,46 +18,42 @@
 require_once($CFG->dirroot.'/mod/questionnaire/lib.php');
 
 class report_editdates_mod_questionnaire_date_extractor
-extends report_editdates_mod_date_extractor {
+        extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'questionnaire');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $mod = $this->mods[$cm->instance];
         return array('opendate' => new report_editdates_date_setting(
-        get_string('opendate', 'questionnaire'),
-        $mod->opendate, self::DATETIME, true, 5),
+                                        get_string('opendate', 'questionnaire'),
+                                        $mod->opendate, self::DATETIME, true, 5),
                     'closedate' => new report_editdates_date_setting(
-        get_string('closedate', 'questionnaire'),
-        $mod->closedate, self::DATETIME, true, 5)
+                                        get_string('closedate', 'questionnaire'),
+                                        $mod->closedate, self::DATETIME, true, 5),
         );
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['opendate'] != 0 && $dates['closedate'] != 0
-        && $dates['closedate'] < $dates['opendate']) {
+                && $dates['closedate'] < $dates['opendate']) {
             $errors['closedate'] = get_string('closedate', 'report_editdates');
         }
         return $errors;
     }
 
-    //overriden abstract method
     public function save_dates(cm_info $cm, array $dates) {
         global $DB, $COURSE;
 
-        //fetch module instance from $mods array
+        // Fetch module instance from $mods array.
         $questionnaire = $this->mods[$cm->instance];
         $questionnaire->instance = $cm->instance;
         $questionnaire->cmidnumber = $cm->id;
 
-        //updating date values
+        // Updating date values.
         foreach ($dates as $datetype => $datevalue) {
             $questionnaire->$datetype = $datevalue;
             if ($datevalue != 0) {
@@ -65,9 +61,10 @@ extends report_editdates_mod_date_extractor {
                 $questionnaire->$property = 1;
             }
         }
-        //method name to udpate the instance and associated events
+
+        // Method name to udpate the instance and associated events.
         $methodname = $cm->modname.'_update_instance';
-        //calling the method
+        // Calling the method.
         $methodname($questionnaire);
     }
 }

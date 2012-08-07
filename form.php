@@ -40,80 +40,76 @@ class report_editdates_form extends moodleform {
      * @see lib/moodleform#definition()
      */
     public function definition() {
-        //global variables
         global $CFG, $DB, $COURSE, $PAGE;
-        //get the form reference
-        $mform =& $this->_form;
-        //fetching $modinfo from the constructor custom data array
+
+        $mform = $this->_form;
+
         $modinfo = $this->_customdata['modinfo'];
-        //fetching $course from the constructor custom data array
         $course = $this->_customdata['course'];
-        //coursecontext instance
         $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
-        //flag to check if actions buttons are required or the continue link
+
+        // Flag to check if actions buttons are required or the continue link.
         $addactionbuttons = false;
-        //adding course start date
+
+        // Course start date.
         $mform->addElement('header', 'coursestartdateheader');
         $mform->addElement('date_selector', 'coursestartdate', get_string('startdate'));
-        $mform->addHelpButton('coursestartdate', 'startdate');//help button for course start date
+        $mform->addHelpButton('coursestartdate', 'startdate');
         $mform->setDefault('coursestartdate', $course->startdate);
-        //if user is not capable, make it read only
+
+        // If user is not capable, make it read only.
         if (!has_capability('moodle/course:update', $coursecontext)) {
             $mform->hardFreeze('coursestartdate');
         } else {
             $addactionbuttons = true;
         }
 
-        //fetching all the sections in the course
+        // Get the course sections.
         $sections = get_all_sections($modinfo->courseid);
         $sectionname = '';
-        //default -1 to display header for 0th section
+        // Default -1 to display header for 0th section.
         $prevsecctionnum = -1;
-        //cycle through all the sections in the course
+        // Cycle through all the sections in the course.
         foreach ($modinfo->sections as $sectionnum => $section) {
             $ismodadded = false;
             $sectionname = '';
-            //cycle through each module in a section
+
+            // Cycle through each module in a section.
             foreach ($section as $cmid) {
-                //fetching the course module object from the $modinfo array.
                 $cm = $modinfo->cms[$cmid];
 
-                //no need to display/continue if this module is not visible to user
+                // No need to display/continue if this module is not visible to user.
                 if (!$cm->uservisible) {
                     continue;
                 }
-                //flag to check if user has the capability to edit this module
-                $ismodreadonly = false;
-                //context instance of the module
-                $modulecontext = get_context_instance(CONTEXT_MODULE, $cm->id);
-                //check if user has capability to edit this module
-                if (!has_capability('moodle/course:manageactivities', $modulecontext)) {
-                    $ismodreadonly = true;
-                }
 
-                //new section, create header
+                // Check if user has capability to edit this module.
+                $modulecontext = get_context_instance(CONTEXT_MODULE, $cm->id);
+                $ismodreadonly = false;
+                $ismodreadonly = !has_capability('moodle/course:manageactivities', $modulecontext);
+
+                // New section, create header.
                 if ($prevsecctionnum != $sectionnum) {
                     $sectionname = get_section_name($course, $sections[$sectionnum]);
                     $mform->addElement('header', $sectionname, $sectionname);
                     $prevsecctionnum = $sectionnum;
                 }
-                //fetching activity name with <h3> tag.
+
+                // Fetching activity name with <h3> tag.
                 $stractivityname = html_writer::tag('h3' , $cm->name);
 
-                //handle site level config settings if conditional availability
-                //dates are enabled or completion date is enabled
-                if ( ($CFG->enableavailability
-                && ( $cm->availablefrom != 0 || $cm->availableuntil != 0) )
-                || ($CFG->enablecompletion && $cm->completionexpected != 0 ) ) {
+                // Handle site level config settings if conditional availability
+                // dates are enabled or completion date is enabled.
+                if (($CFG->enableavailability && ($cm->availablefrom != 0 || $cm->availableuntil != 0))
+                        || ($CFG->enablecompletion && $cm->completionexpected != 0)) {
 
-                    // either of the two settings are available for this module,
-                    // add the module name header
-
+                    // Either of the two settings are available for this module,
+                    // add the module name header.
                     $mform->addElement('static', 'modname', $stractivityname);
-                    //Conditional availability
-                    if ($CFG->enableavailability
-                    && ( $cm->availablefrom != 0 || $cm->availableuntil != 0)) {
-                        //check if available from date is set
+
+                    // Conditional availability.
+                    if ($CFG->enableavailability && ($cm->availablefrom != 0 || $cm->availableuntil != 0)) {
+                        // Check if available from date is set.
                         if ($cm->availablefrom != 0) {
                             $elname = 'date_mod_'.$cm->id.'_availablefrom';
                             $mform->addElement('date_selector', $elname,
@@ -125,7 +121,8 @@ class report_editdates_form extends moodleform {
                                 $mform->hardFreeze($elname);
                             }
                         }
-                        //check if available until date is set
+
+                        // Check if available until date is set.
                         if ($cm->availableuntil != 0) {
                             $elname = 'date_mod_'.$cm->id.'_availableuntil';
                             $mform->addElement('date_selector', $elname,
@@ -137,9 +134,9 @@ class report_editdates_form extends moodleform {
                             }
                         }
                     }
-                    //Completion tracking
-                    if ($CFG->enablecompletion && $cm->completionexpected != 0) {
 
+                    // Completion tracking.
+                    if ($CFG->enablecompletion && $cm->completionexpected != 0) {
                         $elname = 'date_mod_'.$cm->id.'_completionexpected';
                         $mform->addElement('date_selector', $elname,
                         get_string('completionexpected', 'completion'),
@@ -150,24 +147,27 @@ class report_editdates_form extends moodleform {
                             $mform->hardFreeze($elname);
                         }
                     }
+
                     $ismodadded = true;
                     $addactionbuttons = true;
-                } else {//call get_settings method for the acitivity/module
-                    //get instance of the mod's date exractor class
-                    $mod = report_editdates_mod_date_extractor::make($cm->modname,
-                         $course);
+
+                } else {
+                    // Call get_settings method for the acitivity/module.
+                    // Get instance of the mod's date exractor class.
+                    $mod = report_editdates_mod_date_extractor::make($cm->modname, $course);
                     if ($mod) {
                         if ($cmdatesettings = $mod->get_settings($cm)) {
                             $ismodadded = true;
                             $addactionbuttons = true;
-                            //added activity name on the form
+
+                            // Added activity name on the form.
                             $mform->addElement('static', 'modname', $stractivityname);
                             foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
                                 $elname = 'date_mod_'.$cm->id.'_'.$cmdatetype;
                                 $mform->addElement($cmdatesetting->type, $elname,
-                                $cmdatesetting->label,
-                                array('optional' => $cmdatesetting->isoptional,
-                                                    'step' => $cmdatesetting->getstep));
+                                        $cmdatesetting->label, array(
+                                            'optional' => $cmdatesetting->isoptional,
+                                            'step' => $cmdatesetting->getstep));
                                 $mform->setDefault($elname, $cmdatesetting->currentvalue);
                                 if ($ismodreadonly) {
                                     $mform->hardFreeze($elname);
@@ -176,46 +176,40 @@ class report_editdates_form extends moodleform {
                         }
                     }
                 }
-            }//end of sections loop
+            } // End of sections loop.
+
             if (!$ismodadded && $mform->elementExists($sectionname)) {
                 $mform->removeElement($sectionname);
             }
-        }//end of modules loop
+        } // End of modules loop.
 
-        /*
-         * fetching all the blocks added directly under the course
-         * i.e parentcontextid = coursecontextid
-         */
-        $courseblocks = $DB->get_records("block_instances",
-        array('parentcontextid' => $coursecontext->id));
+        // Fetching all the blocks added directly under the course.
+        // That is, parentcontextid = coursecontextid.
+        $courseblocks = $DB->get_records('block_instances', array('parentcontextid' => $coursecontext->id));
 
-        // check capability of current user.
+        // Check capability of current user.
         $canmanagesiteblocks = has_capability('moodle/site:manageblocks', $coursecontext);
 
         $anyblockadded = false;
-        if (isset($courseblocks) && count($courseblocks) > 0) {
-            // adding header for blocks
+        if ($courseblocks) {
+            // Header for blocks.
             $mform->addElement('header', 'blockdatesection');
-            // iterate though blocks array
+
+            // Iterate though blocks array.
             foreach ($courseblocks as $blockid => $block) {
-                $blockdatextrator =
-                    report_editdates_block_date_extractor::make($block->blockname, $course);
+                $blockdatextrator = report_editdates_block_date_extractor::make($block->blockname, $course);
                 if ($blockdatextrator) {
-                    // create the block instance
+                    // Create the block instance.
                     $blockobj = block_instance($block->blockname, $block, $PAGE);
-                    // if get_settings returns a valid array
+                    // If get_settings returns a valid array.
                     if ($blockdatesettings = $blockdatextrator->get_settings($blockobj)) {
                         $anyblockadded = true;
                         $addactionbuttons = true;
-                        //adding block's Title on page.
+                        // Adding block's Title on page.
                         $mform->addElement('static', 'blocktitle', $blockobj->title);
                         foreach ($blockdatesettings as $blockdatetype => $blockdatesetting) {
-                            /*
-                             *  create element name '_' seperated
-                             *  becuase dateselector doesn't create array for [] in name .
-                             */
                             $elname = 'date_block_'.$block->id.'_'.$blockdatetype;
-                            // adding element
+                            // Add element.
                             $mform->addElement($blockdatesetting->type, $elname,
                             $blockdatesetting->label,
                             array('optional' => $blockdatesetting->isoptional,
@@ -229,72 +223,64 @@ class report_editdates_form extends moodleform {
                 }
             }
         }
-        if (!$anyblockadded && $mform->elementExists("blockdatesection")) {
-            $mform->removeElement("blockdatesection");
+        if (!$anyblockadded && $mform->elementExists('blockdatesection')) {
+            $mform->removeElement('blockdatesection');
         }
-        //adding submit/cancel buttons @ the end of the form
+
+        // Add submit/cancel buttons at the end of the form.
         if ($addactionbuttons) {
             $this->add_action_buttons();
         } else {
-            // <div> is used for center align the continue link
-            $continue_url = new moodle_url('/course/view.php', array('id' => $course->id));
-            $mform->addElement('html',
-                "<div style=text-align:center><a href=$continue_url><b>[Continue]</b></a></div>");
+            $mform->addElement('cancel');
+            $mform->closeHeaderBefore('cancel');
         }
     }
 
-    /// perform some extra moodle validation
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
-        $errors = array();
 
-        //fetching $modinfo from the constructor custom data array
         $modinfo = $this->_customdata['modinfo'];
-        //fetching $course from the constructor custom data array
         $course = $this->_customdata['course'];
-        //coursecontext instance
         $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+
         $moddatesettings = array();
         $forceddatesettings = array();
         foreach ($data as $key => $value) {
-            if ($key == "coursestartdate") {        //skip if element is course start date
+            if ($key == "coursestartdate") {
                 continue;
-            } else {
-                $cmsettings = explode('_', $key);
-                //array should have 4 keys
-                if (count($cmsettings) == 4) {
-                    //ignore 0th position, it will be 'date'
-                    //1st position should be the mod type
-                    //2nd will be the id of module
-                    //3rd will be property of module
-                    //ensure that the name is proper
-                    if (isset($cmsettings['1'])
-                    && isset($cmsettings['2']) && isset($cmsettings['3'])) {
-                        //check if its mod date settings
-                        if ($cmsettings['1'] == 'mod') {
-                            /*
-                             * check if config date settings are forced
-                             * and this is one of the forced date setting
-                             */
-                            if ( ($CFG->enableavailability || $CFG->enablecompletion )
-                            && ($cmsettings['3'] == "completionexpected"
-                            || $cmsettings['3'] == "availablefrom"
-                            || $cmsettings['3'] == "availableuntil") ) {
-                                $forceddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
-                            } else {
-                                //it is module date setting
-                                $moddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
-                            }
-                        }
+            }
+
+            $cmsettings = explode('_', $key);
+            // The array should have 4 keys.
+            if (count($cmsettings) != 4) {
+                continue;
+            }
+
+            // Ignore 0th position, it will be 'date'
+            // 1st position should be the mod type
+            // 2nd will be the id of module
+            // 3rd will be property of module
+            // ensure that the name is proper.
+            if (isset($cmsettings['1']) && isset($cmsettings['2']) && isset($cmsettings['3'])) {
+                // Check if its mod date settings.
+                if ($cmsettings['1'] == 'mod') {
+                    // Check if config date settings are forced
+                    // and this is one of the forced date setting.
+                    if (($CFG->enableavailability || $CFG->enablecompletion )
+                            && in_array($cmsettings['3'], array('completionexpected', 'availablefrom', 'availableuntil'))) {
+                        $forceddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                    } else {
+                        // It is module date setting.
+                        $moddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
                     }
                 }
             }
         }
 
-        //validating forced date settings
+        // Validating forced date settings.
         foreach ($forceddatesettings as $modid => $datesettings) {
-            //course module object
+            // Course module object.
             $cm = $modinfo->cms[$modid];
             $moderrors = array();
             if (isset($datesettings['availablefrom']) && isset($datesettings['availableuntil'])
@@ -305,14 +291,13 @@ class report_editdates_form extends moodleform {
             }
         }
 
-        //validating mod date settings
+        // Validating mod date settings.
         foreach ($moddatesettings as $modid => $datesettings) {
-            //course module object
+            // Course module object.
             $cm = $modinfo->cms[$modid];
             $moderrors = array();
 
-            if ($mod =
-                report_editdates_mod_date_extractor::make($cm->modname, $course)) {
+            if ($mod = report_editdates_mod_date_extractor::make($cm->modname, $course)) {
                 $moderrors = $mod->validate_dates($cm, $datesettings);
                 if (!empty($moderrors)) {
                     foreach ($moderrors as $errorfield => $errorstr) {

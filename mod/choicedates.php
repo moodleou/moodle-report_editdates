@@ -17,17 +17,14 @@
 class report_editdates_mod_choice_date_extractor
             extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'choice');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $choice = $this->mods[$cm->instance];
         if ($choice->timeopen != 0 && $choice->timeclose != 0 ) {
-            //availability date settings for a choice
             return array('timeopen' => new report_editdates_date_setting(
                                 get_string('choiceopen', 'choice'),
                                 $choice->timeopen,
@@ -42,7 +39,6 @@ class report_editdates_mod_choice_date_extractor
         return null;
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['timeopen'] != 0 && $dates['timeclose'] != 0 &&

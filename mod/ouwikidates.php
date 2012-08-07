@@ -19,31 +19,28 @@ require_once($CFG->dirroot.'/mod/ouwiki/lib.php');
 class report_editdates_mod_ouwiki_date_extractor
 extends report_editdates_mod_date_extractor {
 
-    //constructor
     public function __construct($course) {
         parent::__construct($course, 'ouwiki');
         parent::load_data();
     }
 
-    //overriden abstract method
     public function get_settings(cm_info $cm) {
         $mod = $this->mods[$cm->instance];
 
         return array('editbegin' => new report_editdates_date_setting(
-        get_string('editbegin', 'ouwiki'),
-        $mod->editbegin, self::DATETIME, true, 5),
+                                        get_string('editbegin', 'ouwiki'),
+                                        $mod->editbegin, self::DATETIME, true, 5),
                      'editend' => new report_editdates_date_setting(
-        get_string('editend', 'ouwiki'),
-        $mod->editend, self::DATETIME, true, 5)
+                                        get_string('editend', 'ouwiki'),
+                                        $mod->editend, self::DATETIME, true, 5)
         );
 
     }
 
-    //overriden abstract method
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['editbegin'] != 0 && $dates['editend'] != 0
-        && $dates['editend'] < $dates['editbegin']) {
+                && $dates['editend'] < $dates['editbegin']) {
             $errors['editend'] = get_string('editend', 'report_editdates');
         }
         return $errors;
