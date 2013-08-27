@@ -14,28 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-class report_editdates_mod_choice_date_extractor
+class report_editdates_mod_feedback_date_extractor
             extends report_editdates_mod_date_extractor {
 
     public function __construct($course) {
-        parent::__construct($course, 'choice');
+        parent::__construct($course, 'feedback');
         parent::load_data();
     }
 
     public function get_settings(cm_info $cm) {
-        $choice = $this->mods[$cm->instance];
-        if ($choice->timeopen != 0 && $choice->timeclose != 0) {
-            return array('timeopen' => new report_editdates_date_setting(
-                                get_string('choiceopen', 'choice'),
-                                $choice->timeopen,
-                                self::DATETIME, false, 5),
+        $feedback = $this->mods[$cm->instance];
+        return array('timeopen' => new report_editdates_date_setting(
+                            get_string('feedbackopen', 'feedback'),
+                            $feedback->timeopen,
+                            self::DATETIME, true, 5),
 
-                          'timeclose' => new report_editdates_date_setting(
-                                get_string('choiceclose', 'choice'),
-                                $choice->timeclose,
-                                self::DATETIME, false, 5)
-            );
-        }
+                      'timeclose' => new report_editdates_date_setting(
+                            get_string('feedbackclose', 'feedback'),
+                            $feedback->timeclose,
+                            self::DATETIME, true, 5)
+        );
         return null;
     }
 

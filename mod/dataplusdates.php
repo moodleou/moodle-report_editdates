@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-class report_editdates_mod_data_date_extractor
+class report_editdates_mod_dataplus_date_extractor
         extends report_editdates_mod_date_extractor {
 
     public function __construct($course) {
-        parent::__construct($course, 'data');
+        parent::__construct($course, 'dataplus');
         parent::load_data();
     }
 
@@ -27,23 +27,15 @@ class report_editdates_mod_data_date_extractor
 
         $datadatesettings = array(
             'timeavailablefrom' => new report_editdates_date_setting(
-                                    get_string('availablefromdate', 'data'),
+                                    get_string('availablefromdate', 'dataplus'),
                                     $data->timeavailablefrom,
                                     self::DATE, true),
             'timeavailableto' => new report_editdates_date_setting(
-                                    get_string('availabletodate', 'data'),
+                                    get_string('availabletodate', 'dataplus'),
                                     $data->timeavailableto,
                                     self::DATE, true),
-            'timeviewfrom' => new report_editdates_date_setting(
-                                    get_string('viewfromdate', 'data'),
-                                    $data->timeviewfrom,
-                                    self::DATE, true),
-            'timeviewto' => new report_editdates_date_setting(
-                                    get_string('viewtodate', 'data'),
-                                    $data->timeviewto,
-                                    self::DATE, true)
         );
-        if ($data->assessed && ($data->assesstimestart != 0 || $data->assesstimefinish != 0) ) {
+        if ($data->assessed) {
             $datadatesettings['assesstimestart'] = new report_editdates_date_setting(
                                     get_string('from'),
                                     $data->assesstimestart,
@@ -61,10 +53,6 @@ class report_editdates_mod_data_date_extractor
         if ($dates['timeavailablefrom'] != 0 && $dates['timeavailableto'] != 0
                 && $dates['timeavailableto'] < $dates['timeavailablefrom']) {
             $errors['timeavailableto'] = get_string('assesstimefinish', 'report_editdates');
-        }
-        if ($dates['timeviewfrom'] != 0 && $dates['timeviewto'] != 0
-                && $dates['timeviewto'] < $dates['timeviewfrom']) {
-            $errors['timeviewto'] = get_string('assesstimefinish', 'report_editdates');
         }
         if (isset($dates['assesstimestart']) && isset($dates['assesstimefinish']) &&
                 $dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0 &&

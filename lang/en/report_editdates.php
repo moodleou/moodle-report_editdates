@@ -25,8 +25,13 @@
 defined('MOODLE_INTERNAL') || die;
 
 
+$string['activityfilter'] = 'Activity view filter <small>(changing this filter will not save the remaining form data)</small>';
+$string['activitytypefilter'] = 'Activity type';
+$string['activitytypefilter_help'] = 'Use the filter to select activities to view and modify. Applying the filter will change the form display but will not save any existing changes.';
+$string['applyactivitytypefilter'] = 'Apply activity type filter';
 $string['assesstimefinish'] = 'Time To cannot be less than Time From';
 $string['closedate'] = 'Close date cannot be less than Open Date';
+$string['coursestartdateheader'] = 'Course';
 $string['deadline'] = 'Deadline cannot be less than Available From';
 $string['editdates'] = 'Dates';
 $string['editdates:view'] = 'View edit dates course report';

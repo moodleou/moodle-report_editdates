@@ -14,36 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-class report_editdates_mod_choice_date_extractor
+class report_editdates_mod_ouelluminate_date_extractor
             extends report_editdates_mod_date_extractor {
 
     public function __construct($course) {
-        parent::__construct($course, 'choice');
+        parent::__construct($course, 'ouelluminate');
         parent::load_data();
     }
 
     public function get_settings(cm_info $cm) {
-        $choice = $this->mods[$cm->instance];
-        if ($choice->timeopen != 0 && $choice->timeclose != 0) {
-            return array('timeopen' => new report_editdates_date_setting(
-                                get_string('choiceopen', 'choice'),
-                                $choice->timeopen,
-                                self::DATETIME, false, 5),
+        $ouelluminate = $this->mods[$cm->instance];
+        return array('timestart' => new report_editdates_date_setting(
+                            get_string('meetingbegins', 'ouelluminate'),
+                            $ouelluminate->timestart,
+                            self::DATETIME, false, 15),
 
-                          'timeclose' => new report_editdates_date_setting(
-                                get_string('choiceclose', 'choice'),
-                                $choice->timeclose,
-                                self::DATETIME, false, 5)
-            );
-        }
-        return null;
+                      'timeend' => new report_editdates_date_setting(
+                            get_string('meetingends', 'ouelluminate'),
+                            $ouelluminate->timeend,
+                            self::DATETIME, false, 15)
+        );
     }
 
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
-        if (!empty($dates['timeopen']) && !empty($dates['timeclose']) &&
-                            $dates['timeclose'] < $dates['timeopen']) {
-            $errors['timeclose'] = get_string('timeclose', 'report_editdates');
+        if (!empty($dates['timestart']) && !empty($dates['timeend']) &&
+                            $dates['timeend'] < $dates['timestart']) {
+            $errors['timeend'] = get_string('timeclose', 'report_editdates');
         }
         return $errors;
     }

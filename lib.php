@@ -87,7 +87,7 @@ abstract class report_editdates_mod_date_extractor {
     protected $mods;
 
     /** @var array a static array to cache the objects of child classes */
-    private static $mod_date_extractor = array();
+    private static $moddateextractor = array();
 
     /**
      * Constructor.
@@ -106,8 +106,8 @@ abstract class report_editdates_mod_date_extractor {
     public static function make($modname, $course) {
         global $CFG;
         // Check if static array already has an object for this mod extractor class.
-        if (isset(self::$mod_date_extractor[$modname])) {
-            self::$mod_date_extractor[$modname];
+        if (array_key_exists($modname, self::$moddateextractor)) {
+            self::$moddateextractor[$modname];
         }
 
         // Create the new object of this mods date exractor file.
@@ -116,11 +116,12 @@ abstract class report_editdates_mod_date_extractor {
             include_once($filename);
             $classname = 'report_editdates_mod_'.$modname.'_date_extractor';
             if (class_exists($classname)) {
-                self::$mod_date_extractor[$modname] = new $classname($course);
-                return self::$mod_date_extractor[$modname];
+                self::$moddateextractor[$modname] = new $classname($course);
+                return self::$moddateextractor[$modname];
             }
         }
-        return null;
+        self::$moddateextractor[$modname] = null;
+        return self::$moddateextractor[$modname];
     }
 
     /**
@@ -190,7 +191,7 @@ abstract class report_editdates_block_date_extractor {
     protected $blocks;
 
     /** @var array a static array to cache the objects of child classes */
-    private static $block_date_extractor = array();
+    private static $blockdateextractor = array();
 
     /**
      * Constructor.
@@ -209,8 +210,8 @@ abstract class report_editdates_block_date_extractor {
     public static function make($blockname, $course) {
         global $CFG;
         // Check if static array already has an object for this mod extractor class.
-        if (isset(self::$block_date_extractor[$blockname])) {
-            self::$block_date_extractor[$blockname];
+        if (isset(self::$blockdateextractor[$blockname])) {
+            self::$blockdateextractor[$blockname];
         }
         // Create the new object of this mods date exractor file.
         $filename = $CFG->dirroot . '/report/editdates/blocks/' . $blockname . 'dates.php';
@@ -218,8 +219,8 @@ abstract class report_editdates_block_date_extractor {
             include_once($filename);
             $classname = 'report_editdates_block_'.$blockname.'_date_extractor';
             if (class_exists($classname)) {
-                self::$block_date_extractor[$blockname] = new $classname($course);
-                return self::$block_date_extractor[$blockname];
+                self::$blockdateextractor[$blockname] = new $classname($course);
+                return self::$blockdateextractor[$blockname];
             }
         }
         return null;
@@ -287,8 +288,11 @@ function report_editdates_extend_navigation_course($navigation, $course, $contex
     global $CFG, $OUTPUT;
     if (has_capability('report/editdates:view', $context)) {
         $url = new moodle_url('/report/editdates/index.php', array('id' => $course->id));
+        if ($activitytype = optional_param('activitytype', '', PARAM_PLUGIN)) {
+            $url->param('activitytype', $activitytype);
+        }
         $navigation->add(get_string( 'editdates', 'report_editdates' ),
-        $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+                $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }
 
@@ -336,9 +340,9 @@ function report_editdates_update_dates_by_section($courseid, array $sectionnums,
     // Loop through each section in the course.
     foreach ($sectionnums as $sectionnum => $value) {
         // Course modules in the section.
-        $cms = $modinfo->sections[$sectionnum];
+        $cms = $modinfo->get_section_info($sectionnum);
         foreach ($cms as $key => $cmid) {
-            $cm = $modinfo->cms[$cmid];
+            $cm = $modinfo->get_cm($cmid);
 
             if (!$cm->has_view()) {
                 continue;
@@ -403,7 +407,7 @@ function report_editdates_update_dates_by_section($courseid, array $sectionnums,
 
         // Updating mod date settings.
         foreach ($moddatesettings as $cmid => $datesettings) {
-            $cm = $modinfo->cms[$cmid];
+            $cm = $modinfo->get_cm($cmid);;
             $modname = $cm->modname;
 
             $modinstance = report_editdates_mod_data_date_extractor::make($cm->modname, $course);
@@ -416,4 +420,22 @@ function report_editdates_update_dates_by_section($courseid, array $sectionnums,
     } catch (Exception $e) {
         $transaction->rollback($e);
     }
+}
+
+/**
+ * Does this cm have any date settings?
+ * @param stdClass $cm the course_module settings.
+ * @param stdClass $course the course settings.
+ * @return bool whether there are any dates to edit for this activity.
+ */
+function report_editdates_cm_has_dates($cm, $course) {
+    global $CFG;
+
+    $coursehasavailability = !empty($CFG->enableavailability);
+    $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($course->enablecompletion);
+    if ($coursehasavailability || $coursehascompletion) {
+        return true;
+    }
+
+    return (bool) report_editdates_mod_date_extractor::make($cm->modname, $course);
 }

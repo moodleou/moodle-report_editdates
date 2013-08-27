@@ -50,7 +50,6 @@ class report_editdates_mod_chat_date_extractor
         }
 
         // Method name to update the instance and associated events.
-        $methodname = $cm->modname.'_update_instance';
-        $methodname($chat);
+        chat_update_instance($chat);
     }
 }

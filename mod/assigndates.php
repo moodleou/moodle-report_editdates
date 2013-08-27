@@ -26,24 +26,32 @@ extends report_editdates_mod_date_extractor {
 
     public function get_settings(cm_info $cm) {
         $assign = $this->mods[$cm->instance];
-        // Availability and due date settings for a mod_assign.
+
         return array(
                 'allowsubmissionsfromdate' => new report_editdates_date_setting(
-                        get_string('availabledate', 'assignment'),
+                        get_string('allowsubmissionsfromdate', 'assign'),
                         $assign->allowsubmissionsfromdate,
                         self::DATETIME, true, 5),
                 'duedate' => new report_editdates_date_setting(
-                        get_string('duedate', 'assignment'),
+                        get_string('duedate', 'assign'),
                         $assign->duedate,
-                        self::DATETIME, true, 5)
+                        self::DATETIME, true, 5),
+                'cutoffdate' => new report_editdates_date_setting(
+                        get_string('cutoffdate', 'assign'),
+                        $assign->cutoffdate,
+                        self::DATETIME, true, 5),
                 );
     }
 
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
-        if ($dates['allowsubmissionsfromdate'] != 0 && $dates['duedate'] != 0
-        && $dates['duedate'] < $dates['allowsubmissionsfromdate']) {
-            $errors['duedate'] = get_string('timedue', 'report_editdates');
+        if ($dates['allowsubmissionsfromdate'] && $dates['duedate']
+                && $dates['duedate'] < $dates['allowsubmissionsfromdate']) {
+            $errors['duedate'] = get_string('duedatevalidation', 'assign');
+        }
+
+        if ($dates['duedate'] && $dates['cutoffdate'] && $dates['duedate'] > $dates['cutoffdate']) {
+            $errors['cutoffdate'] = get_string('cutoffdatevalidation', 'assign');
         }
         return $errors;
     }
@@ -55,6 +63,7 @@ extends report_editdates_mod_date_extractor {
         $update->id = $cm->instance;
         $update->duedate = $dates['duedate'];
         $update->allowsubmissionsfromdate = $dates['allowsubmissionsfromdate'];
+        $update->cutoffdate = $dates['cutoffdate'];
 
         $result = $DB->update_record('assign', $update);
 

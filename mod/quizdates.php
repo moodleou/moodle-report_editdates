@@ -27,18 +27,18 @@ class report_editdates_mod_quiz_date_extractor
     public function get_settings(cm_info $cm) {
         $quiz = $this->mods[$cm->instance];
         return array('timeopen' => new report_editdates_date_setting(
-        get_string('quizopen', 'quiz'),
-        $quiz->timeopen, self::DATETIME, true, 1),
+                                        get_string('quizopen', 'quiz'),
+                                        $quiz->timeopen, self::DATETIME, true, 1),
                      'timeclose' => new report_editdates_date_setting(
-        get_string('quizclose', 'quiz'),
-        $quiz->timeclose, self::DATETIME, true, 1)
+                                        get_string('quizclose', 'quiz'),
+                                        $quiz->timeclose, self::DATETIME, true, 1)
         );
     }
 
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['timeopen'] != 0 && $dates['timeclose'] != 0
-        && $dates['timeclose'] < $dates['timeopen']) {
+                && $dates['timeclose'] < $dates['timeopen']) {
             $errors['timeclose'] = get_string('timeclose', 'report_editdates');
         }
         return $errors;

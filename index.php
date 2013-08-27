@@ -26,28 +26,74 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/form.php');
 
+define('REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD', 20);
+
 $id = required_param('id', PARAM_INT);
+$activitytype = optional_param('activitytype', '', PARAM_PLUGIN);
+
+// Should be a valid course id.
 $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 require_login($course);
 
 // Setup page.
-$PAGE->set_url('/report/editdates/index.php', array('id'=>$id));
-$PAGE->set_pagelayout('report');
-$returnurl = new moodle_url('/course/view.php', array('id' => $id));
+$urlparams = array('id' => $id);
+if ($activitytype) {
+    $urlparams['activitytype'] = $activitytype;
+}
+$PAGE->set_url('/report/editdates/index.php', $urlparams);
+$PAGE->set_pagelayout('admin');
 
 // Check permissions.
-$coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+$coursecontext = context_course::instance($course->id);
 require_capability('report/editdates:view', $coursecontext);
 
 // Fetching all modules in the course.
 $modinfo = get_fast_modinfo($course);
+$cms = $modinfo->get_cms();
+
+// Prepare a list of activity types used in this course, and count the number that
+// might be displayed.
+$activitiesdisplayed = 0;
+$activitytypes = array();
+foreach ($modinfo->get_sections() as $sectionnum => $section) {
+    foreach ($section as $cmid) {
+        $cm = $cms[$cmid];
+
+        // Filter activities to those that are relevant to this report.
+        if (!$cm->uservisible) {
+            continue;
+        }
+
+        if (!report_editdates_cm_has_dates($cm, $course)) {
+            continue;
+        }
+
+        $activitiesdisplayed += 1;
+        $activitytypes[$cm->modname] = get_string('modulename', $cm->modname);
+    }
+}
+collatorlib::asort($activitytypes);
+
+if ($activitiesdisplayed <= REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD) {
+    $activitytypes = array('' => get_string('all')) + $activitytypes;
+}
+
+// If activity count is above the threshold, activate the filter controls.
+if (!$activitytype && $activitiesdisplayed > REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD) {
+    reset($activitytypes);
+    redirect(new moodle_url('/report/editdates/index.php',
+            array('id' => $id, 'activitytype' => key($activitytypes))));
+}
 
 // Creating the form.
-$mform = new report_editdates_form(new moodle_url('/report/editdates/index.php',
-        array('id' => $id)), array('modinfo' => $modinfo, 'course' => $course));
+$baseurl = new moodle_url('/report/editdates/index.php', array('id' => $id));
+$mform = new report_editdates_form($baseurl, array('modinfo' => $modinfo,
+        'course' => $course, 'activitytype' => $activitytype));
 
+$returnurl = new moodle_url('/course/view.php', array('id' => $id));
 if ($mform->is_cancelled()) {
+    // Redirect to course view page if form is cancelled.
     redirect($returnurl);
 
 } else if ($data = $mform->get_data()) {
@@ -120,7 +166,7 @@ if ($mform->is_cancelled()) {
 
     // Update mod date settings.
     foreach ($moddatesettings as $modid => $datesettings) {
-        $cm = $modinfo->cms[$modid];
+        $cm = $cms[$modid];
         $mod = report_editdates_mod_date_extractor::make($cm->modname, $course);
         if ($mod) {
             $mod->save_dates($cm, $datesettings);
@@ -148,18 +194,29 @@ if ($mform->is_cancelled()) {
     // Commit transaction and finish up.
     $transaction->allow_commit();
     rebuild_course_cache($course->id);
-    redirect($returnurl);
+    redirect($PAGE->url);
 }
 
-// Log.
-add_to_log($course->id, 'course', 'report edit dates', "report/editdates/index.php?id=$course->id", $course->id);
+// Prepare activity type menu.
+$select = new single_select($baseurl, 'activitytype', $activitytypes, $activitytype, null, 'activitytypeform');
+$select->set_label(get_string('activitytypefilter', 'report_editidnumber'));
+$select->set_help_icon('activitytypefilter', 'report_editidnumber');
 
-// Finish setting up page.
+// Making log entry.
+add_to_log($course->id, 'course', 'report edit dates',
+        "report/editdates/index.php?id=$course->id", $course->id);
+
+// Set page title and page heading.
 $PAGE->set_title($course->shortname .': '. get_string('editdates' , 'report_editdates'));
 $PAGE->set_heading($course->fullname);
 
-// Displaying the form.
+// Displaying the page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($course->fullname));
+
+echo $OUTPUT->heading(get_string('activityfilter', 'report_editidnumber'));
+echo $OUTPUT->render($select);
+
 $mform->display();
+
 echo $OUTPUT->footer();

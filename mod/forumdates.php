@@ -25,7 +25,7 @@ class report_editdates_mod_forum_date_extractor
     public function get_settings(cm_info $cm) {
         $forum = $this->mods[$cm->instance];
 
-        if ($forum->assessed && ( $forum->assesstimestart != 0 || $forum->assesstimefinish != 0) ) {
+        if ($forum->assessed) {
             return array('assesstimestart' => new report_editdates_date_setting(
                                                 get_string('from'),
                                                 $forum->assesstimestart,
@@ -41,7 +41,8 @@ class report_editdates_mod_forum_date_extractor
 
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
-        if ($dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0 &&
+        $forum = $this->mods[$cm->instance];
+        if ($forum->assessed && $dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0 &&
                 $dates['assesstimefinish'] < $dates['assesstimestart']) {
             $errors['assesstimefinish'] = get_string('assesstimefinish', 'report_editdates');
         }

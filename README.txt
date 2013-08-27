@@ -1,6 +1,6 @@
 Edit dates report
 
-This 'report' is actually at tool that lets you edit all the dates for all]
+This 'report' is actually a tool that lets you edit all the dates for all
 the activities in your course on a single page.
 
 You can install it from the Moodle plugins database

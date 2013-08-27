@@ -26,18 +26,18 @@ class report_editdates_mod_lesson_date_extractor
         $mod = $this->mods[$cm->instance];
 
         return array('available' => new report_editdates_date_setting(
-        get_string('available', 'lesson'),
-        $mod->available, self::DATETIME, true, 5),
+                                        get_string('available', 'lesson'),
+                                        $mod->available, self::DATETIME, true, 5),
                       'deadline' => new report_editdates_date_setting(
-        get_string('deadline', 'lesson'),
-        $mod->deadline, self::DATETIME, true, 5)
+                                        get_string('deadline', 'lesson'),
+                                        $mod->deadline, self::DATETIME, true, 5)
         );
     }
 
     public function validate_dates(cm_info $cm, array $dates) {
         $errors = array();
         if ($dates['available'] != 0 && $dates['deadline'] != 0
-        && $dates['deadline'] < $dates['available']) {
+                && $dates['deadline'] < $dates['available']) {
             $errors['deadline'] = get_string('deadline', 'report_editdates');
         }
         return $errors;
