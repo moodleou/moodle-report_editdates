@@ -29,4 +29,4 @@ $plugin->requires  = 2011120500;
 $plugin->cron      = 0;
 $plugin->component = 'report_editdates';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.1 for Moodle 2.2+';
+$plugin->release   = '2.1 for Moodle 2.2 - 2.4';
