@@ -231,7 +231,7 @@ abstract class report_editdates_block_date_extractor {
      */
     public function load_data() {
         global $DB;
-        $coursecontext = get_context_instance( CONTEXT_COURSE, $this->course->id);
+        $coursecontext = context_course::instance($this->course->id);
         $this->blocks = $DB->get_records("block_instances",
         array('blockname'=>$this->type, 'parentcontextid' => $coursecontext->id));
     }

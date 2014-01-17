@@ -120,7 +120,7 @@ if ($mform->is_cancelled()) {
                     // Check if its mod date settings.
                     if ($cmsettings['1'] == 'mod') {
                         // Module context.
-                        $modcontext = get_context_instance(CONTEXT_MODULE, $cmsettings['2']);
+                        $modcontext = context_module::instance($cmsettings['2']);
                         // User should be capable of updating individual module.
                         if (has_capability('moodle/course:manageactivities', $modcontext)) {
                             // Check if config date settings are forced

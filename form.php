@@ -261,7 +261,7 @@ class report_editdates_form extends moodleform {
 
         $modinfo = $this->_customdata['modinfo'];
         $course = $this->_customdata['course'];
-        $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+        $coursecontext = context_course::instance($course->id);
 
         $moddatesettings = array();
         $forceddatesettings = array();
