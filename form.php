@@ -173,7 +173,7 @@ class report_editdates_form extends moodleform {
                 }
 
                 // Completion tracking.
-                if ($coursehascompletion) {
+                if ($coursehascompletion && $cm->completion) {
                     $elname = 'date_mod_'.$cm->id.'_completionexpected';
                     $mform->addElement('date_selector', $elname,
                             get_string('completionexpected', 'completion'),
