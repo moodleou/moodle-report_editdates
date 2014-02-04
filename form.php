@@ -63,7 +63,9 @@ class report_editdates_form extends moodleform {
 
         // Course start date.
         $mform->addElement('header', 'coursestartdateheader', get_string('coursestartdateheader', 'report_editdates'));
-        $mform->setExpanded('coursestartdateheader', false);
+        if (method_exists($mform, 'setExpanded')) {
+            $mform->setExpanded('coursestartdateheader', false);
+        }
         $mform->addElement('date_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
         $mform->setDefault('coursestartdate', $course->startdate);
@@ -112,7 +114,9 @@ class report_editdates_form extends moodleform {
                     $sectionname = get_section_name($course, $modinfo->get_section_info($sectionnum));
                     $headername = 'section' . $sectionnum . 'header';
                     $mform->addElement('header', $headername, $sectionname);
-                    $mform->setExpanded($headername, false);
+                    if (method_exists($mform, 'setExpanded')) {
+                        $mform->setExpanded($headername, false);
+                    }
                     $prevsectionnum = $sectionnum;
                 }
 
