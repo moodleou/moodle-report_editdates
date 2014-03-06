@@ -85,10 +85,51 @@ class report_editdates_form extends moodleform {
 
         // Cycle through all the sections in the course.
         $cms = $modinfo->get_cms();
-        $sections = get_all_sections($modinfo->courseid);
+        $sections = $modinfo->get_section_info_all();
         foreach ($sections as $sectionnum => $section) {
             $ismodadded = false;
             $sectionname = '';
+
+            // Skip if section isn't visible to the user.
+            if (!$section->uservisible) {
+                continue;
+            }
+
+            // New section, create header.
+            if ($prevsectionnum != $sectionnum) {
+                $sectionname = get_section_name($course, $section);
+                $headername = 'section' . $sectionnum . 'header';
+                $mform->addElement('header', $headername, $sectionname);
+                $mform->setExpanded($headername, false);
+                $prevsectionnum = $sectionnum;
+            }
+
+            // Section availability.
+            if ($CFG->enableavailability && ($section->availablefrom != 0 || $section->availableuntil != 0)) {
+                $ismodreadonly = false;
+                $ismodreadonly = !has_capability('moodle/course:update', $coursecontext);
+                if ($section->availablefrom != 0) {
+                    $elname = 'date_section_'.$section->id.'_availablefrom';
+                    $mform->addElement('date_selector', $elname, get_string('availablefrom', 'condition'), array('optional'=>true));
+                    $mform->setDefault($elname, $section->availablefrom);
+                    $mform->addHelpButton($elname, 'availablefrom', 'condition');
+                    if ($ismodreadonly) {
+                        $mform->hardFreeze($elname);
+                    }
+                }
+                if ($section->availableuntil != 0) {
+                    $elname = 'date_section_'.$section->id.'_availableuntil';
+                    $mform->addElement('date_selector', $elname, get_string('availableuntil', 'condition'), array('optional'=>true));
+                    $mform->setDefault($elname, $section->availableuntil);
+                    if ($ismodreadonly) {
+                        $mform->hardFreeze($elname);
+                    }
+                }
+                $ismodadded = true;
+                if (!$ismodreadonly) {
+                    $addactionbuttons = true;
+                }
+            }
 
             // Cycle through each module in a section.
             if (isset($modinfo->sections[$sectionnum])) {
@@ -108,15 +149,6 @@ class report_editdates_form extends moodleform {
                     // Check if the user has capability to edit this module settings.
                     $modulecontext = context_module::instance($cm->id);
                     $ismodreadonly = !has_capability('moodle/course:manageactivities', $modulecontext);
-
-                    // New section, create header.
-                    if ($prevsectionnum != $sectionnum) {
-                        $sectionname = get_section_name($course, $modinfo->get_section_info($sectionnum));
-                        $headername = 'section' . $sectionnum . 'header';
-                        $mform->addElement('header', $headername, $sectionname);
-                        $mform->setExpanded($headername, false);
-                        $prevsectionnum = $sectionnum;
-                    }
 
                     // Display activity name.
                     $iconmarkup = html_writer::empty_tag('img', array(
