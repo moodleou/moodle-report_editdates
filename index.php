@@ -101,6 +101,7 @@ if ($mform->is_cancelled()) {
 
     $moddatesettings = array();
     $blockdatesettings = array();
+    $sectiondatesettings = array();
     $forceddatesettings = array();
 
     foreach ($data as $key => $value) {
@@ -140,7 +141,12 @@ if ($mform->is_cancelled()) {
                         if (has_capability('moodle/site:manageblocks', $coursecontext)) {
                             $blockdatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
                         }
-                    }
+                    } else if ($cmsettings['1'] == 'section') {
+                        // If user is capable of updating sections in course context.
+                        if (has_capability('moodle/course:update', $coursecontext)) {
+                            $sectiondatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                        }
+                    } 
                 }
             }
         }
@@ -162,6 +168,21 @@ if ($mform->is_cancelled()) {
         }
         // Update object in course_modules class.
         $DB->update_record('course_modules', $cm, true);
+    }
+
+    // Update section date settings.
+    foreach ($sectiondatesettings as $sectionid => $datesettings) {
+       $sectionsettings = array('availablefrom', 'availableuntil');
+       $section = new stdClass();
+       $section->id = $sectionid;
+       foreach($sectionsettings as $setting) {
+           if (isset($datesettings[$setting])) {
+               $section->{$setting} = $datesettings[$setting];
+           } else {
+               $section->{$setting} = 0;
+           }
+       }
+       $DB->update_record('course_sections', $section, true);
     }
 
     // Update mod date settings.
