@@ -42,3 +42,7 @@ $string['timeclose'] = 'Time Close cannot be less than Time Open';
 $string['timedue'] = 'Time Due cannot be less than Time available';
 $string['timeuntil'] = 'Time From cannot be less than Time Until';
 $string['timeend'] = 'Prevent from cannot be less than Allow From';
+$string['sectionhasrestrictedaccess'] = 'Section {$a} has restricted date access settings';
+$string['hasrestrictedaccess'] = '{$a} has restricted date access settings';
+$string['editrestrictedaccess'] = 'Edit restricted access (opens a new window)';
+$string['event:reportviewed'] = 'Edit dates report viewed';

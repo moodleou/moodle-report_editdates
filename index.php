@@ -146,7 +146,7 @@ if ($mform->is_cancelled()) {
                         if (has_capability('moodle/course:update', $coursecontext)) {
                             $sectiondatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -224,8 +224,9 @@ $select->set_label(get_string('activitytypefilter', 'report_editdates'));
 $select->set_help_icon('activitytypefilter', 'report_editdates');
 
 // Making log entry.
-add_to_log($course->id, 'course', 'report edit dates',
-        "report/editdates/index.php?id=$course->id", $course->id);
+$event = \report_editdates\event\report_viewed::create(
+        array('context' => $coursecontext, 'other' => array('activitytype' => $activitytype)));
+$event->trigger();
 
 // Set page title and page heading.
 $PAGE->set_title($course->shortname .': '. get_string('editdates' , 'report_editdates'));

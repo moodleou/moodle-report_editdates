@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2014011700;
+$plugin->version   = 2014100600;
 $plugin->requires  = 2013040500;
 $plugin->cron      = 0;
 $plugin->component = 'report_editdates';

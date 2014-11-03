@@ -104,31 +104,17 @@ class report_editdates_form extends moodleform {
                 $prevsectionnum = $sectionnum;
             }
 
-            // Section availability.
-            if ($CFG->enableavailability) {
-                $ismodreadonly = false;
-                $ismodreadonly = !has_capability('moodle/course:update', $coursecontext);
-
-                // Section available from.
-                $elname = 'date_section_'.$section->id.'_availablefrom';
-                $mform->addElement('date_selector', $elname, get_string('availablefrom', 'condition'), array('optional'=>true));
-                $mform->setDefault($elname, $section->availablefrom);
-                $mform->addHelpButton($elname, 'availablefrom', 'condition');
-                if ($ismodreadonly) {
-                    $mform->hardFreeze($elname);
-                }
-
-                // Section available until.
-                $elname = 'date_section_'.$section->id.'_availableuntil';
-                $mform->addElement('date_selector', $elname, get_string('availableuntil', 'condition'), array('optional'=>true));
-                $mform->setDefault($elname, $section->availableuntil);
-                if ($ismodreadonly) {
-                    $mform->hardFreeze($elname);
-                }
-
-                $ismodadded = true;
-                if (!$ismodreadonly) {
-                    $addactionbuttons = true;
+            if ($coursehasavailability && $section->availability) {
+                // If there are retricted access date settings.
+                if (strpos($section->availability, '"type":"date"') !== false) {
+                    $editsettingurl = new moodle_url('/course/editsection.php', array('id' => $section->id));
+                    $editsettingurltext = html_writer::tag('a',
+                            get_string('editrestrictedaccess', 'report_editdates'),
+                                    array('href' => $editsettingurl->out(false), 'target' => '_blank'));
+                    $mform->addElement('static', '',
+                            get_string('sectionhasrestrictedaccess',
+                                    'report_editdates', get_section_name($course, $section)),
+                                            $editsettingurltext);
                 }
             }
 
@@ -179,32 +165,17 @@ class report_editdates_form extends moodleform {
                         }
                     }
 
-                    // Conditional availability.
-                    if ($coursehasavailability) {
-                        // Check if available from date is set.
-                        $elname = 'date_mod_'.$cm->id.'_availablefrom';
-                        $mform->addElement('date_time_selector', $elname,
-                                get_string('availablefrom', 'condition'),
-                                array('optional'=>true));
-                        $mform->setDefault($elname, $cm->availablefrom);
-                        $mform->addHelpButton($elname, 'availablefrom', 'condition');
-                        if ($ismodreadonly) {
-                            $mform->hardFreeze($elname);
+                    if ($coursehasavailability && $cm->availability) {
+                        // If there are retricted access date settings.
+                        if (strpos($cm->availability, '"type":"date"') !== false) {
+                            $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                            $editsettingurltext = html_writer::tag('a',
+                                    get_string('editrestrictedaccess', 'report_editdates'),
+                                            array('href' => $editsettingurl->out(false), 'target' => '_blank'));
+                            $mform->addElement('static', '',
+                                    get_string('hasrestrictedaccess', 'report_editdates', ($cm->name)),
+                                            $editsettingurltext);
                         }
-                        $elementadded++;
-
-                        // Check if available until date is set.
-                        $elname = 'date_mod_'.$cm->id.'_availableuntil';
-                        $mform->addElement('date_time_selector', $elname,
-                                get_string('availableuntil', 'condition'),
-                                array('optional'=>true));
-                        $mform->setDefault($elname, $cm->availableuntil);
-                        if ($ismodreadonly) {
-                            $mform->hardFreeze($elname);
-                        }
-                        $elementadded++;
-
-                        $isdateadded = true;
                     }
 
                     // Completion tracking.
