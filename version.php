@@ -30,3 +30,5 @@ $plugin->cron      = 0;
 $plugin->component = 'report_editdates';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '2.3 for Moodle 2.7+';
+
+$plugin->outestssufficient = true;

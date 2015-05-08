@@ -48,14 +48,11 @@ Feature: Edit course plugin dates
         And I should see "Test quiz name 1"
         And I should see "Test quiz name 2"
         And I should see "Test quiz name 3"
-        # In ouvle, the three quizzes get cmids 2, 3, 4 (because one module creates
-        # an instance of itself on install). In core Moodle they are 1, 2, 3.
-        # So, to aviod problems we only test with cmids 2 and 3.
-        When I set the following fields to these values:
-            | id_date_mod_2_timeopen_enabled  | 1 |
-            | id_date_mod_2_timeclose_enabled | 1 |
-            | id_date_mod_3_timeopen_enabled  | 1 |
-            | id_date_mod_3_timeclose_enabled | 1 |
+        # test to see whether we can pick up xpath element
+        And I set the field with xpath "//fieldset[@id='id_section2header']/div[@class='fcontainer clearfix']/div[2]/fieldset[1]/span/input" to "1"
+        And I set the field with xpath "//fieldset[@id='id_section2header']/div[@class='fcontainer clearfix']/div[3]/fieldset[1]/span/input" to "1"
+        And I set the field with xpath "//fieldset[@id='id_section3header']/div[@class='fcontainer clearfix']/div[2]/fieldset[1]/span/input" to "1"
+        And I set the field with xpath "//fieldset[@id='id_section3header']/div[@class='fcontainer clearfix']/div[3]/fieldset[1]/span/input" to "1"
         And I press "Save changes"
         Then I should see "Course 1"
         And I should see "Activity view filter "
@@ -64,7 +61,7 @@ Feature: Edit course plugin dates
         And I should see "Test quiz name 1"
         And I should see "Test quiz name 2"
         And I should see "Test quiz name 3"
-        And the field "id_date_mod_2_timeopen_enabled" matches value "1"
-        And the field "id_date_mod_2_timeclose_enabled" matches value "1"
-        And the field "id_date_mod_3_timeopen_enabled" matches value "1"
-        And the field "id_date_mod_3_timeclose_enabled" matches value "1"
+        And the "value" attribute of "//fieldset[@id='id_section2header']/div[@class='fcontainer clearfix']/div[2]/fieldset[1]/span/input" "xpath_element" should contain "1"
+        And the "value" attribute of "//fieldset[@id='id_section2header']/div[@class='fcontainer clearfix']/div[3]/fieldset[1]/span/input" "xpath_element" should contain "1"
+        And the "value" attribute of "//fieldset[@id='id_section3header']/div[@class='fcontainer clearfix']/div[2]/fieldset[1]/span/input" "xpath_element" should contain "1"
+        And the "value" attribute of "//fieldset[@id='id_section3header']/div[@class='fcontainer clearfix']/div[3]/fieldset[1]/span/input" "xpath_element" should contain "1"
