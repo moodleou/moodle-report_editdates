@@ -57,14 +57,14 @@ class report_editdates_mod_workshop_date_extractor
         // Check the phases do not overlap.
         if (max($dates['submissionstart'], $dates['submissionend']) > 0 &&
                 max($dates['assessmentstart'], $dates['assessmentend']) > 0) {
-            $phasesubmissionend = max($data['submissionstart'], $data['submissionend']);
-            $phaseassessmentstart = min($data['assessmentstart'], $data['assessmentend']);
+            $phasesubmissionend = max($dates['submissionstart'], $dates['submissionend']);
+            $phaseassessmentstart = min($dates['assessmentstart'], $dates['assessmentend']);
             if ($phaseassessmentstart == 0) {
-                $phaseassessmentstart = max($data['assessmentstart'], $data['assessmentend']);
+                $phaseassessmentstart = max($dates['assessmentstart'], $dates['assessmentend']);
             }
             if ($phasesubmissionend > 0 && $phaseassessmentstart > 0 && $phaseassessmentstart < $phasesubmissionend) {
                 foreach (array('submissionend', 'submissionstart', 'assessmentstart', 'assessmentend') as $f) {
-                    if ($data[$f] > 0) {
+                    if ($dates[$f] > 0) {
                         $errors[$f] = get_string('phasesoverlap', 'mod_workshop');
                         break;
                     }
