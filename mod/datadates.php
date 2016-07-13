@@ -29,19 +29,19 @@ class report_editdates_mod_data_date_extractor
             'timeavailablefrom' => new report_editdates_date_setting(
                                     get_string('availablefromdate', 'data'),
                                     $data->timeavailablefrom,
-                                    self::DATE, true),
+                                    self::DATETIME, true),
             'timeavailableto' => new report_editdates_date_setting(
                                     get_string('availabletodate', 'data'),
                                     $data->timeavailableto,
-                                    self::DATE, true),
+                                    self::DATETIME, true),
             'timeviewfrom' => new report_editdates_date_setting(
                                     get_string('viewfromdate', 'data'),
                                     $data->timeviewfrom,
-                                    self::DATE, true),
+                                    self::DATETIME, true),
             'timeviewto' => new report_editdates_date_setting(
                                     get_string('viewtodate', 'data'),
                                     $data->timeviewto,
-                                    self::DATE, true)
+                                    self::DATETIME, true)
         );
         if ($data->assessed && ($data->assesstimestart != 0 || $data->assesstimefinish != 0) ) {
             $datadatesettings['assesstimestart'] = new report_editdates_date_setting(
