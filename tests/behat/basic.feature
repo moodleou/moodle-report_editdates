@@ -38,7 +38,6 @@ Feature: Edit course plugin dates
   @javascript @_switch_iframe
   Scenario: Test edit dates report can be used to change plugin instance dates
     When I log in as "admin"
-    And I am on site homepage
     And I am on "Course 1" course homepage
     And I navigate to "Dates" node in "Course administration > Reports"
     And I follow "Dates"
