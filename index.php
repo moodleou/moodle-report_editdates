@@ -108,43 +108,47 @@ if ($mform->is_cancelled()) {
         if ($key == "coursestartdate") {
             $course->startdate = $value;
         } else {
-            // It is a module. Need to extract date settings for each module.
-            $cmsettings = explode('_', $key);
-            // The array should have 4 keys.
-            if (count($cmsettings) == 4) {
-                // Ignore 0th position, it will be 'date'
-                // 1st position should be the mod type
-                // 2nd will be the id of module
-                // 3rd will be property of module
-                // ensure that the name is proper.
-                if (isset($cmsettings['1']) && isset($cmsettings['2']) && isset($cmsettings['3'])) {
-                    // Check if its mod date settings.
-                    if ($cmsettings['1'] == 'mod') {
-                        // Module context.
-                        $modcontext = context_module::instance($cmsettings['2']);
-                        // User should be capable of updating individual module.
-                        if (has_capability('moodle/course:manageactivities', $modcontext)) {
-                            // Check if config date settings are forced
-                            // and this is one of the forced date setting.
-                            if (($CFG->enablecompletion || $CFG->enableavailability)
-                                    && ($cmsettings['3'] == "completionexpected"
-                                    || $cmsettings['3'] == "availablefrom"
-                                    || $cmsettings['3'] == "availableuntil") ) {
-                                $forceddatesettings[$cmsettings['2']][$cmsettings['3']]=$value;
-                            } else {
-                                // Module date setting.
-                                $moddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+            if ($key == "courseenddate") {
+                $course->enddate = $value;
+            } else {
+                // It is a module. Need to extract date settings for each module.
+                $cmsettings = explode('_', $key);
+                // The array should have 4 keys.
+                if (count($cmsettings) == 4) {
+                    // Ignore 0th position, it will be 'date'
+                    // 1st position should be the mod type
+                    // 2nd will be the id of module
+                    // 3rd will be property of module
+                    // ensure that the name is proper.
+                    if (isset($cmsettings['1']) && isset($cmsettings['2']) && isset($cmsettings['3'])) {
+                        // Check if its mod date settings.
+                        if ($cmsettings['1'] == 'mod') {
+                            // Module context.
+                            $modcontext = context_module::instance($cmsettings['2']);
+                            // User should be capable of updating individual module.
+                            if (has_capability('moodle/course:manageactivities', $modcontext)) {
+                                // Check if config date settings are forced
+                                // and this is one of the forced date setting.
+                                if (($CFG->enablecompletion || $CFG->enableavailability)
+                                        && ($cmsettings['3'] == "completionexpected"
+                                        || $cmsettings['3'] == "availablefrom"
+                                        || $cmsettings['3'] == "availableuntil") ) {
+                                    $forceddatesettings[$cmsettings['2']][$cmsettings['3']]=$value;
+                                } else {
+                                    // Module date setting.
+                                    $moddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                                }
                             }
-                        }
-                    } else if ($cmsettings['1'] == 'block') {
-                        // If user is capable of updating blocks in course context.
-                        if (has_capability('moodle/site:manageblocks', $coursecontext)) {
-                            $blockdatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
-                        }
-                    } else if ($cmsettings['1'] == 'section') {
-                        // If user is capable of updating sections in course context.
-                        if (has_capability('moodle/course:update', $coursecontext)) {
-                            $sectiondatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                        } else if ($cmsettings['1'] == 'block') {
+                            // If user is capable of updating blocks in course context.
+                            if (has_capability('moodle/site:manageblocks', $coursecontext)) {
+                                $blockdatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                            }
+                        } else if ($cmsettings['1'] == 'section') {
+                            // If user is capable of updating sections in course context.
+                            if (has_capability('moodle/course:update', $coursecontext)) {
+                                $sectiondatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
+                            }
                         }
                     }
                 }
@@ -157,6 +161,7 @@ if ($mform->is_cancelled()) {
     // Allow to update only if user is capable.
     if (has_capability('moodle/course:update', $coursecontext)) {
         $DB->set_field('course', 'startdate', $course->startdate, array('id' => $course->id));
+        $DB->set_field('course', 'enddate', $course->enddate, array('id' => $course->id));
     }
 
     // Update forced date settings.

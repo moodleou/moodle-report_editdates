@@ -64,9 +64,12 @@ class report_editdates_form extends moodleform {
         // Course start date.
         $mform->addElement('header', 'coursestartdateheader', get_string('coursestartdateheader', 'report_editdates'));
         $mform->setExpanded('coursestartdateheader', false);
-        $mform->addElement('date_selector', 'coursestartdate', get_string('startdate'));
+        $mform->addElement('date_time_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
         $mform->setDefault('coursestartdate', $course->startdate);
+        $mform->addElement('date_time_selector', 'courseenddate', get_string('enddate'), array('optional' => true));
+        $mform->addHelpButton('courseenddate', 'enddate');
+        $mform->setDefault('courseenddate', $course->enddate);
 
         // If user is not capable, make it read only.
         if (!has_capability('moodle/course:update', $coursecontext)) {
@@ -181,7 +184,7 @@ class report_editdates_form extends moodleform {
                     // Completion tracking.
                     if ($coursehascompletion && $cm->completion) {
                         $elname = 'date_mod_'.$cm->id.'_completionexpected';
-                        $mform->addElement('date_selector', $elname,
+                        $mform->addElement('date_time_selector', $elname,
                                 get_string('completionexpected', 'completion'),
                                 array('optional' => true));
                         $mform->addHelpButton($elname, 'completionexpected', 'completion');
