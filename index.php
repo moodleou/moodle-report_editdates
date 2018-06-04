@@ -107,6 +107,8 @@ if ($mform->is_cancelled()) {
     foreach ($data as $key => $value) {
         if ($key == "coursestartdate") {
             $course->startdate = $value;
+        } else if ($key == "courseenddate") {
+            $course->enddate = $value;
         } else {
             // It is a module. Need to extract date settings for each module.
             $cmsettings = explode('_', $key);
@@ -157,6 +159,7 @@ if ($mform->is_cancelled()) {
     // Allow to update only if user is capable.
     if (has_capability('moodle/course:update', $coursecontext)) {
         $DB->set_field('course', 'startdate', $course->startdate, array('id' => $course->id));
+        $DB->set_field('course', 'enddate', $course->enddate, array('id' => $course->id));
     }
 
     // Update forced date settings.
