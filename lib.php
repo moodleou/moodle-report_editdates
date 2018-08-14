@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
 
 /**
  * Simple class capturing the information needed to add
@@ -232,8 +234,8 @@ abstract class report_editdates_block_date_extractor {
     public function load_data() {
         global $DB;
         $coursecontext = context_course::instance($this->course->id);
-        $this->blocks = $DB->get_records("block_instances",
-        array('blockname'=>$this->type, 'parentcontextid' => $coursecontext->id));
+        $this->blocks = $DB->get_records('block_instances',
+                array('blockname' => $this->type, 'parentcontextid' => $coursecontext->id));
     }
 
     /**

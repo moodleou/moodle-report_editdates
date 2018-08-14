@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
+
 class report_editdates_mod_turnitintooltwo_date_extractor
 extends report_editdates_mod_date_extractor {
 
@@ -28,7 +31,7 @@ extends report_editdates_mod_date_extractor {
         $parts = $DB->get_records_select("turnitintooltwo_parts", "turnitintooltwoid = ?", [$tii->id], 'id ASC');
         $elems = [];
 
-        foreach($parts as $id => $part){
+        foreach ($parts as $id => $part) {
             $elems["startdate$id"] = new report_editdates_date_setting(
                 $part->partname . " " . "Start Date",
                 $part->dtstart,
@@ -53,11 +56,11 @@ extends report_editdates_mod_date_extractor {
         global $DB;
         $errors = array();
         $parts = $DB->get_records_select("turnitintooltwo_parts", "turnitintooltwoid = ?", [$cm->instance], 'id ASC');
-        foreach($parts as $id => $part){
-            if($dates["startdate$id"] > $dates["duedate$id"]){
+        foreach ($parts as $id => $part) {
+            if ($dates["startdate$id"] > $dates["duedate$id"]) {
                 $errors["duedate$id"] = "Due date must be after startdate";
             }
-            if($dates["duedate$id"] > $dates["postdate$id"]){
+            if ($dates["duedate$id"] > $dates["postdate$id"]) {
                 $errors["postdate$id"] = "Post date cannot be before duedate";
             }
         }
@@ -69,7 +72,7 @@ extends report_editdates_mod_date_extractor {
         global $DB, $COURSE, $CFG;
 
         $parts = $DB->get_records_select("turnitintooltwo_parts", "turnitintooltwoid = ?", [$cm->instance], 'id ASC');
-        foreach($parts as $id => $part){
+        foreach ($parts as $id => $part) {
             $update = new stdClass();
             $update->id = $id;
             $update->dtstart = $dates["startdate$id"];
@@ -80,6 +83,6 @@ extends report_editdates_mod_date_extractor {
 
         require_once($CFG->dirroot."/mod/turnitintooltwo/turnitintooltwo_assignment.class.php");
         $tii = new turnitintooltwo_assignment($cm->instance);
-        $tii->edit_moodle_assignment(); #sync changes to TII / Gradebook / Calendar
+        $tii->edit_moodle_assignment(); // Sync changes to TII / Gradebook / Calendar.
     }
 }
