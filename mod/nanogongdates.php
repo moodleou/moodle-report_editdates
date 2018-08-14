@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
+
 class report_editdates_mod_nanogong_date_extractor
         extends report_editdates_mod_date_extractor {
 
@@ -24,7 +27,7 @@ class report_editdates_mod_nanogong_date_extractor
 
     public function get_settings(cm_info $cm) {
         $nanogong = $this->mods[$cm->instance];
-        
+
         return array('timeavailable' => new report_editdates_date_setting(
                                             get_string('availabledate', 'mod_nanogong'),
                                             $nanogong->timeavailable,
