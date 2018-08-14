@@ -54,6 +54,7 @@ extends report_editdates_mod_date_extractor {
 
     public function validate_dates(cm_info $cm, array $dates) {
         global $DB;
+        $now = new DateTime("now", core_date::get_user_timezone_object());
         $errors = array();
         $parts = $DB->get_records_select("turnitintooltwo_parts", "turnitintooltwoid = ?", [$cm->instance], 'id ASC');
         foreach ($parts as $id => $part) {
@@ -62,6 +63,9 @@ extends report_editdates_mod_date_extractor {
             }
             if ($dates["duedate$id"] > $dates["postdate$id"]) {
                 $errors["postdate$id"] = "Post date cannot be before duedate";
+            }
+            if ($now->getTimestamp() - $dates["startdate$id"] > 31536000) { // Start date cannot be more than 1 year in the past.
+                $errors["startdate$id"] = "Start date is more than one year ago";
             }
         }
 

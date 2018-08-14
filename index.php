@@ -26,8 +26,6 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/form.php');
 
-define('REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD', 20);
-
 $id = required_param('id', PARAM_INT);
 $activitytype = optional_param('activitytype', '', PARAM_PLUGIN);
 
@@ -55,7 +53,7 @@ $cms = $modinfo->get_cms();
 // Prepare a list of activity types used in this course, and count the number that
 // might be displayed.
 $activitiesdisplayed = 0;
-$activitytypes = array();
+$activitytypes = array("all" => get_string('allactivities'));
 foreach ($modinfo->get_sections() as $sectionnum => $section) {
     foreach ($section as $cmid) {
         $cm = $cms[$cmid];
@@ -74,17 +72,6 @@ foreach ($modinfo->get_sections() as $sectionnum => $section) {
     }
 }
 core_collator::asort($activitytypes);
-
-if ($activitiesdisplayed <= REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD) {
-    $activitytypes = array('' => get_string('all')) + $activitytypes;
-}
-
-// If activity count is above the threshold, activate the filter controls.
-if (!$activitytype && $activitiesdisplayed > REPORT_EDITDATES_ENABLE_FILTER_THRESHOLD) {
-    reset($activitytypes);
-    redirect(new moodle_url('/report/editdates/index.php',
-            array('id' => $id, 'activitytype' => key($activitytypes))));
-}
 
 // Creating the form.
 $baseurl = new moodle_url('/report/editdates/index.php', array('id' => $id));

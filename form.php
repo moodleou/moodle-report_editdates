@@ -107,17 +107,28 @@ class report_editdates_form extends moodleform {
                 $prevsectionnum = $sectionnum;
             }
 
-            if ($coursehasavailability && $section->availability) {
-                // If there are retricted access date settings.
-                if (strpos($section->availability, '"type":"date"') !== false) {
-                    $editsettingurl = new moodle_url('/course/editsection.php', array('id' => $section->id));
+            if ($sectionnum > 0 && $coursehasavailability) {
+                $editsettingurl = new moodle_url('/course/editsection.php', array('id' => $section->id));
+                if ($section->availability) {
+                    // If there are retricted access date settings.
+                    if (strpos($section->availability, '"type":"date"') !== false) {
+                        $editsettingurltext = html_writer::tag('a',
+                                get_string('editrestrictedaccess', 'report_editdates'),
+                                        array('href' => $editsettingurl->out(false),
+                                        'target' => '_blank',
+                                        'class' => 'editdates_highlight'));
+                        $mform->addElement('static', '',
+                                get_string('hasrestrictedaccess', 'report_editdates', ($sectionname)),
+                                        $editsettingurltext);
+                    }
+                } else {
                     $editsettingurltext = html_writer::tag('a',
-                            get_string('editrestrictedaccess', 'report_editdates'),
-                                    array('href' => $editsettingurl->out(false), 'target' => '_blank'));
+                                                           get_string('addrestrictedaccess', 'report_editdates', ($sectionname)),
+                                                           array('href' => $editsettingurl->out(false),
+                                                                 'target' => '_blank'));
                     $mform->addElement('static', '',
-                            get_string('sectionhasrestrictedaccess',
-                                    'report_editdates', get_section_name($course, $section)),
-                                            $editsettingurltext);
+                                       get_string('norestrictedaccess', 'report_editdates', ($sectionname)),
+                                       $editsettingurltext);
                 }
             }
 
@@ -132,7 +143,7 @@ class report_editdates_form extends moodleform {
                     }
 
                     // If activity filter is on, then filter module by activity type.
-                    if ($activitytype && $cm->modname != $activitytype) {
+                    if ($activitytype && ($cm->modname != $activitytype && $activitytype != "all")) {
                         continue;
                     }
 
@@ -143,8 +154,8 @@ class report_editdates_form extends moodleform {
                     // Display activity name.
                     $iconmarkup = html_writer::empty_tag('img', array(
                             'src' => $cm->get_icon_url(), 'class' => 'activityicon', 'alt' => ''));
-                    $stractivityname = html_writer::tag('strong' , $iconmarkup . $cm->name);
-                    $mform->addElement('static', 'modname' . $cm->id, $stractivityname);
+                    $stractivityname = html_writer::tag('strong' , $iconmarkup . ' ' . $cm->name . '<hr />');
+                    $mform->addElement('html', $stractivityname);
                     $isdateadded = false;
 
                     // Call get_settings method for the acitivity/module.
@@ -168,21 +179,8 @@ class report_editdates_form extends moodleform {
                         }
                     }
 
-                    if ($coursehasavailability && $cm->availability) {
-                        // If there are retricted access date settings.
-                        if (strpos($cm->availability, '"type":"date"') !== false) {
-                            $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
-                            $editsettingurltext = html_writer::tag('a',
-                                    get_string('editrestrictedaccess', 'report_editdates'),
-                                            array('href' => $editsettingurl->out(false), 'target' => '_blank'));
-                            $mform->addElement('static', '',
-                                    get_string('hasrestrictedaccess', 'report_editdates', ($cm->name)),
-                                            $editsettingurltext);
-                        }
-                    }
-
                     // Completion tracking.
-                    if ($coursehascompletion && $cm->completion) {
+                    if ($coursehascompletion && isset($cm->completionexpected)) {
                         $elname = 'date_mod_'.$cm->id.'_completionexpected';
                         $mform->addElement('date_time_selector', $elname,
                                 get_string('completionexpected', 'completion'),
@@ -197,17 +195,39 @@ class report_editdates_form extends moodleform {
                         $isdateadded = true;
                     }
 
+                    if ($coursehasavailability) {
+                        if ($cm->availability) {
+                            // If there are retricted access date settings.
+                            if (strpos($cm->availability, '"type":"date"') !== false) {
+                                $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                                $editsettingurltext = html_writer::tag('a',
+                                        get_string('editrestrictedaccess', 'report_editdates'),
+                                                array('href' => $editsettingurl->out(false),
+                                                'target' => '_blank',
+                                                'class' => 'editdates_highlight'));
+                                $mform->addElement('static', '',
+                                        get_string('hasrestrictedaccess', 'report_editdates', ($cm->name)),
+                                                $editsettingurltext);
+                            }
+                        } else {
+                            $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                            $editsettingurltext = html_writer::tag('a',
+                                    get_string('addrestrictedaccess', 'report_editdates'),
+                                            array('href' => $editsettingurl->out(false), 'target' => '_blank'));
+                            if ($isdateadded) {
+                                $mform->addElement('static', 'modrestrict' . $cm->id,
+                                        get_string('norestrictedaccess', 'report_editdates', ($cm->name)),
+                                                $editsettingurltext);
+                            }
+                        }
+                    }
+
                     if ($isdateadded) {
                         $ismodadded = true;
                         $addactionbuttons = true;
-                    } else {
-                        $mform->removeElement('modname' . $cm->id);
+                        $mform->addElement('static', 'moddivider' . $cm->id, '');
                     }
                 } // End of modules loop.
-
-                if (!$ismodadded && $mform->elementExists($sectionname)) {
-                    $mform->removeElement($sectionname);
-                }
             }
         } // End of sections loop.
 
@@ -252,6 +272,7 @@ class report_editdates_form extends moodleform {
                 }
             }
         }
+
         if (!$anyblockadded && $mform->elementExists('blockdatesection')) {
             $mform->removeElement('blockdatesection');
         }
