@@ -294,7 +294,7 @@ function report_editdates_extend_navigation_course($navigation, $course, $contex
             $url->param('activitytype', $activitytype);
         }
         $navigation->add(get_string( 'editdates', 'report_editdates' ),
-                $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+                $url, navigation_node::TYPE_SETTING, null, 'editdates', new pix_icon('i/report', ''));
     }
 }
 
