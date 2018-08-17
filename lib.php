@@ -112,8 +112,13 @@ abstract class report_editdates_mod_date_extractor {
             self::$moddateextractor[$modname];
         }
 
-        // Create the new object of this mods date exractor file.
-        $filename = $CFG->dirroot . '/report/editdates/mod/' . $modname . 'dates.php';
+        // Create the new object of this mods date extractor file.
+        // First looks for a module-specific implementation...
+        $filename = $CFG->dirroot . '/mod/' . $modname . '/classes/editdates.php';
+        if (!file_exists($filename)) {
+            // Then looks for own support of the module.
+            $filename = $CFG->dirroot . '/report/editdates/mod/' . $modname . 'dates.php';
+        }
         if (file_exists($filename)) {
             include_once($filename);
             $classname = 'report_editdates_mod_'.$modname.'_date_extractor';
@@ -216,7 +221,12 @@ abstract class report_editdates_block_date_extractor {
             self::$blockdateextractor[$blockname];
         }
         // Create the new object of this mods date exractor file.
-        $filename = $CFG->dirroot . '/report/editdates/blocks/' . $blockname . 'dates.php';
+        // First looks for a block-specific implementation...
+        $filename = $CFG->dirroot . '/blocks/' . $blockname . '/classes/editdates.php';
+        if (!file_exists($filename)) {
+            // Then looks for own support of the module.
+            $filename = $CFG->dirroot . '/report/editdates/blocks/' . $blockname . 'dates.php';
+        }
         if (file_exists($filename)) {
             include_once($filename);
             $classname = 'report_editdates_block_'.$blockname.'_date_extractor';
