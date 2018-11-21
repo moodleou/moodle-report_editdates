@@ -1,6 +1,16 @@
 # Change log for the Edit dates report
 
 
+## Changes in 2.7
+
+* There is now a way for other plugins to add themselves to this report
+  using a class in that other plugin, rather than requring a class to be added here.
+  See the readme for details.
+* Fixed a problem with the CSS, where the CSS here would alter the appearance
+  of forms throughout Moodle. Sorry about that.
+* Update automated tests for Moodle 3.6.
+
+
 ## Changes in 2.6
 
 * Privacy API implementation.
