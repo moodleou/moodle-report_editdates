@@ -104,6 +104,7 @@ abstract class report_editdates_mod_date_extractor {
     /**
      * This static function is used to create and cache objects of mod's date extractor classes
      * @param String $modname the name of activity/resource e.g 'assignment', 'quiz'
+     * @return report_editdates_mod_date_extractor|null the extractor
      */
     public static function make($modname, $course) {
         global $CFG;
@@ -112,7 +113,15 @@ abstract class report_editdates_mod_date_extractor {
             self::$moddateextractor[$modname];
         }
 
-        // Create the new object of this mods date exractor file.
+        // First, see if the plugin has implemented support within itself. This will be
+        // a class in the plugins classes folder that can be loaded using auto-loading.
+        $classname = 'mod_' . $modname . '_report_editdates_integration';
+        if (class_exists($classname)) {
+            self::$moddateextractor[$modname] = new $classname($course);
+            return self::$moddateextractor[$modname];
+        }
+
+        // Create the new object of this mods date extractor file.
         $filename = $CFG->dirroot . '/report/editdates/mod/' . $modname . 'dates.php';
         if (file_exists($filename)) {
             include_once($filename);
@@ -208,6 +217,7 @@ abstract class report_editdates_block_date_extractor {
     /**
      * This static function is used to create and cache objects of block's date extractor classes
      * @param String $blockname the name of the block e.g 'html'
+     * @return report_editdates_block_date_extractor|null the extractor
      */
     public static function make($blockname, $course) {
         global $CFG;
@@ -215,6 +225,15 @@ abstract class report_editdates_block_date_extractor {
         if (isset(self::$blockdateextractor[$blockname])) {
             self::$blockdateextractor[$blockname];
         }
+
+        // First, see if the plugin has implemented support within itself. This will be
+        // a class in the plugins classes folder that can be loaded using auto-loading.
+        $classname = 'block_' . $blockname . '_report_editdates_integration';
+        if (class_exists($classname)) {
+            self::$blockdateextractor[$blockname] = new $classname($course);
+            return self::$blockdateextractor[$blockname];
+        }
+
         // Create the new object of this mods date exractor file.
         $filename = $CFG->dirroot . '/report/editdates/blocks/' . $blockname . 'dates.php';
         if (file_exists($filename)) {
@@ -225,7 +244,9 @@ abstract class report_editdates_block_date_extractor {
                 return self::$blockdateextractor[$blockname];
             }
         }
-        return null;
+
+        self::$blockdateextractor[$blockname] = null;
+        return self::$blockdateextractor[$blockname];
     }
 
     /**
