@@ -46,6 +46,7 @@ class report_editdates_form extends moodleform {
         $modinfo       = $this->_customdata['modinfo'];
         $course        = $this->_customdata['course'];
         $activitytype  = $this->_customdata['activitytype'];
+        $config = get_config('report_editdates');
 
         $coursehasavailability = !empty($CFG->enableavailability);
         $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($course->enablecompletion);
@@ -89,6 +90,7 @@ class report_editdates_form extends moodleform {
         // Cycle through all the sections in the course.
         $cms = $modinfo->get_cms();
         $sections = $modinfo->get_section_info_all();
+        $timeline = array();
         foreach ($sections as $sectionnum => $section) {
             $ismodadded = false;
             $sectionname = '';
@@ -120,6 +122,17 @@ class report_editdates_form extends moodleform {
                         $mform->addElement('static', '',
                                 get_string('hasrestrictedaccess', 'report_editdates', ($sectionname)),
                                         $editsettingurltext);
+                        $iconmarkup = html_writer::tag('i', '', array('class' => 'icon fa fa-folder-open',
+                                                                      'style' => 'margin: 4px;'));
+                        $timeline['section'.$sectionnum] = array('type' => 'section',
+                                                                 'name' => $sectionname,
+                                                                 'icon' => $iconmarkup,
+                                                                 'url' => $editsettingurl,
+                                                                 'restrict' => $section->availability,
+                                                                 'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
+                                                                                     mt_rand( 0, 255 ) . ',' .
+                                                                                     mt_rand( 0, 255 ) . ', .5)'
+                                                            );
                     }
                 } else {
                     $editsettingurltext = html_writer::tag('a',
@@ -157,6 +170,14 @@ class report_editdates_form extends moodleform {
                     $stractivityname = html_writer::tag('strong' , $iconmarkup . ' ' . $cm->name . '<hr />');
                     $mform->addElement('html', $stractivityname);
                     $isdateadded = false;
+                    $timeline[$cm->id] = array('type' => $cm->modname,
+                                               'name' => $cm->name,
+                                               'icon' => $iconmarkup,
+                                               'url' => new moodle_url('/course/modedit.php', array('update' => $cm->id)),
+                                               'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
+                                                                   mt_rand( 0, 255 ) . ',' .
+                                                                   mt_rand( 0, 255 ) . ', .5)'
+                                         );
 
                     // Call get_settings method for the acitivity/module.
                     // Get instance of the mod's date exractor class.
@@ -170,6 +191,8 @@ class report_editdates_form extends moodleform {
                                     'optional' => $cmdatesetting->isoptional,
                                     'step' => $cmdatesetting->getstep));
                             $mform->setDefault($elname, $cmdatesetting->currentvalue);
+                            $timeline[$cm->id] = array_merge($timeline[$cm->id],
+                                                             array($cmdatesetting->label => $cmdatesetting->currentvalue));
                             if ($ismodreadonly) {
                                 $mform->hardFreeze($elname);
                             }
@@ -187,6 +210,8 @@ class report_editdates_form extends moodleform {
                                 array('optional' => true));
                         $mform->addHelpButton($elname, 'completionexpected', 'completion');
                         $mform->setDefault($elname, $cm->completionexpected);
+                        $timeline[$cm->id] = array_merge($timeline[$cm->id],
+                                                         array('completionexpected' => $cm->completionexpected));
                         if ($ismodreadonly) {
                             $mform->hardFreeze($elname);
                         }
@@ -199,6 +224,7 @@ class report_editdates_form extends moodleform {
                         if ($cm->availability) {
                             // If there are retricted access date settings.
                             if (strpos($cm->availability, '"type":"date"') !== false) {
+                                $timeline[$cm->id] = array_merge($timeline[$cm->id], array('restrict' => $cm->availability));
                                 $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
                                 $editsettingurltext = html_writer::tag('a',
                                         get_string('editrestrictedaccess', 'report_editdates'),
@@ -284,6 +310,12 @@ class report_editdates_form extends moodleform {
             // Remove top action button.
             $mform->removeElement('buttonar');
         }
+
+        if ($config->timelinemax) { // Create timeline view.
+            $mform->closeHeaderBefore('timelineview');
+            $mform->addElement('static', 'timelineview', '');
+            $mform->addElement('html', self::render_timeline_view($timeline));
+        }
     }
 
     public function validation($data, $files) {
@@ -360,5 +392,90 @@ class report_editdates_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    public function render_timeline_view($data) {
+        $data = self::sort_timeline_data($data);
+        $config = get_config('report_editdates');
+
+        $first = reset($data);
+        $last = end($data);
+        $output = "";
+        if (isset($first["time"]) && isset($last["time"])) {
+            $first["time"] -= 86400; // Timeline view starts 1 day before first activity time.
+            $last["time"] += 86400; // Timeline view ends 1 day after last activity time.
+            $current = usergetdate($first["time"]);
+
+            $datediff = $last["time"] - $first["time"];
+            $days = round($datediff / (60 * 60 * 24)) + 1; // Timeine view expanded by 1 day.
+
+            $output .= '<div class="vertical-text-container">';
+            if ($days < ($config->timelinemax * 365)) { // Timeline day span visibility.
+                $output .= '<table><tr style="height: 65px;">';
+                for ($d = 0; $d <= $days; $d++) { // Create timeline vertical header.
+                    $date = usergetdate($first["time"] + ($d * (60 * 60 * 24)));
+                    $output .= '<th class="vertical-text"><div><span>' .
+                                    $date['mon'] . '/' . $date['mday'] . '/' . $date['year'] .
+                                '</span></div></th>';
+                }
+                $output .= '</tr><tr>';
+                for ($d = 0; $d <= $days; $d++) {  // Check day by day for activity.
+                    $date = usergetdate($first["time"] + ($d * (60 * 60 * 24)));
+                    $style = $date["wday"] == 0 || $date["wday"] == 6 ? 'background: rgb(0,250,0,.1);' : '';
+                    $output .= '<td style="' . $style . '">';
+                    foreach ($data as $item) {  // Check each item to see if it occurs on the day.
+                        $current = usergetdate($item["time"]);
+                        if ($current["year"] . $current["yday"] == $date["year"] . $date["yday"]) {
+                            $output .= '<a target="_blank" class="timelineitem" style="background:' . $item["color"] . '" ' .
+                                           'href="' . $item["url"] . '" title="' . $item["name"] . '">' .
+                                            $item["icon"] .
+                                       '</a>';
+                        }
+                    }
+                    $output .= '</td>';
+                }
+                $output .= '</tr></table>';
+            } else {
+                $output .= '<h3><strong>' . get_string('toomuchtime', 'report_editdates', $config->timelinemax) . '</strong></h3>';
+            }
+
+            $output .= '</div>';
+        }
+        return $output;
+    }
+
+    private function sort_timeline_data($data) {
+        $sorted = array();
+        // Find earliest and latest date.
+        foreach ($data as $mod) {
+            foreach ($mod as $key => $value) {
+                if ($key == "restrict") { // Process restriction dates.
+                    $objects = json_decode($value);
+                    foreach ($objects->c as $obj) {
+                        if (is_numeric($obj->t) && $obj->t > 0) {
+                            $sorted[] = array('type' => $mod["type"],
+                                              'restric' => true,
+                                              'name' => $mod["name"] . ": Restrict Access",
+                                              'icon' => $mod["icon"],
+                                              'url' => $mod["url"],
+                                              'color' => $mod["color"],
+                                              'time' => $obj->t);
+                        }
+                    }
+                } else if (is_numeric($value) && $value > 0) {
+                    $sorted[] = array('type' => $mod["type"],
+                                      'name' => $mod["name"] . ": $key",
+                                      'icon' => $mod["icon"],
+                                      'url' => $mod["url"],
+                                      'color' => $mod["color"],
+                                      'time' => $value);
+                }
+            }
+        }
+
+        usort($sorted, function ($a, $b) {
+                           return (int) $a["time"] <=> (int) $b["time"];
+        });
+        return $sorted;
     }
 }
