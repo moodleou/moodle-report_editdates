@@ -2,19 +2,15 @@
     margin-bottom: 1em;
 }
 
-div[id^="fitem_id_moddivider"] {
+#page-report-editdates-index div[id^="fitem_id_moddivider"] {
     margin-bottom: 30px;
 }
 
-.editdates_highlight {
+#page-report-editdates-index .editdates_highlight {
     background: #d9edf7;
     border-radius: 5px;
     color: black;
     padding: 10px;
     position: relative;
     top: 10px;
-}
-
-div.fitemtitle {
-    padding: 5px;
 }
