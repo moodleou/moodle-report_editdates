@@ -33,6 +33,7 @@ $string['assesstimefinish'] = 'Time To cannot be less than Time From';
 $string['closedate'] = 'Close date cannot be less than Open Date';
 $string['coursestartdateheader'] = 'Course';
 $string['deadline'] = 'Deadline cannot be less than Available From';
+$string['dependentdate'] = 'The to and from dates must both be set or both must be disabled';
 $string['editdates'] = 'Dates';
 $string['editdates:view'] = 'View edit dates course report';
 $string['editend'] = 'Prevent editing from cannot be less than Allow editing from';
