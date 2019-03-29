@@ -32,11 +32,11 @@ class report_editdates_mod_forum_date_extractor
             return array('assesstimestart' => new report_editdates_date_setting(
                                                 get_string('from'),
                                                 $forum->assesstimestart,
-                                                self::DATETIME, false),
+                                                self::DATETIME, true),
                          'assesstimefinish' => new report_editdates_date_setting(
                                                 get_string('to'),
                                                 $forum->assesstimefinish,
-                                                self::DATETIME, false)
+                                                self::DATETIME, true)
             );
         }
         return null;
@@ -48,6 +48,14 @@ class report_editdates_mod_forum_date_extractor
         if ($forum->assessed && $dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0 &&
                 $dates['assesstimefinish'] < $dates['assesstimestart']) {
             $errors['assesstimefinish'] = get_string('assesstimefinish', 'report_editdates');
+        }
+
+        if ($forum->assessed && $dates['assesstimestart'] == 0 && $dates['assesstimefinish'] != 0) {
+            $errors['assesstimestart'] = get_string('dependentdate', 'report_editdates');
+        }
+
+        if ($forum->assessed && $dates['assesstimefinish'] == 0 && $dates['assesstimestart'] != 0) {
+            $errors['assesstimefinish'] = get_string('dependentdate', 'report_editdates');
         }
         return $errors;
     }
