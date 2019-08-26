@@ -359,6 +359,7 @@ class report_editdates_form extends moodleform {
             }
         }
 
+        $this->errors = empty($errors) ? false : $errors; // Make easily available errors array.
         return $errors;
     }
 }

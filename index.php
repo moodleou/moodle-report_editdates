@@ -205,7 +205,7 @@ if ($mform->is_cancelled()) {
     // Commit transaction and finish up.
     $transaction->allow_commit();
     rebuild_course_cache($course->id);
-    redirect($PAGE->url);
+    redirect($PAGE->url . "&saved");
 }
 
 // Prepare activity type menu.
@@ -225,6 +225,12 @@ $PAGE->set_heading($course->fullname);
 // Displaying the page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($course->fullname));
+
+if (count($mform->errors)) {
+    echo html_writer::div(get_string('validfailed' , 'report_editdates', count($mform->errors)), "page-report-editdates failed");
+} else if (isset($_GET["saved"])) {
+    echo html_writer::div(get_string('validsuccess' , 'report_editdates'), "page-report-editdates hideme");
+}
 
 echo $OUTPUT->heading(get_string('activityfilter', 'report_editdates'));
 echo $OUTPUT->render($select);

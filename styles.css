@@ -14,3 +14,46 @@
     position: relative;
     top: 10px;
 }
+
+.page-report-editdates {
+    padding: 10px;
+    text-align: center;
+    font-size: 1.5em;
+    background: green;
+    color: white;
+}
+
+.page-report-editdates.hideme {
+    -moz-animation: hideAnimation 0s ease-in 5s forwards;
+    /* Firefox */
+    -webkit-animation: hideAnimation 0s ease-in 5s forwards;
+    /* Safari and Chrome */
+    -o-animation: hideAnimation 0s ease-in 5s forwards;
+    /* Opera */
+    animation: hideAnimation 0s ease-in 5s forwards;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+}
+
+@keyframes hideAnimation {
+    to {
+        width: 0;
+        height: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+}
+
+@-webkit-keyframes hideAnimation {
+    to {
+        width: 0;
+        height: 0;
+        padding: 0;
+        visibility: hidden;
+    }
+}
+
+.page-report-editdates.failed {
+    background: orange;
+    color: black;
+}

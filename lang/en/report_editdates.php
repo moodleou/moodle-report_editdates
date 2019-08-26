@@ -48,3 +48,5 @@ $string['addrestrictedaccess'] = 'Add restricted access (opens a new window)';
 $string['editrestrictedaccess'] = 'Edit restricted access (opens a new window)';
 $string['event:reportviewed'] = 'Edit dates report viewed';
 $string['privacy:metadata'] = 'The Dates plugin does not store any personal data.';
+$string['validfailed'] = '{$a} Validation issue(s) found.  Dates NOT saved.';
+$string['validsuccess'] = 'Dates Saved Successfully';
