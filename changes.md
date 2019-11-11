@@ -1,6 +1,16 @@
 # Change log for the Edit dates report
 
 
+## Changes in 2.8
+
+* New graphical display of the course timeline, thanks to Matt Davidson.
+* Usability improvement: a message is shown at the top of the page if the form did not
+  validate and so your changes are not yet saved.
+* All times can now be set to the nearest minute, like in standard Moodle.
+* Fix the dependency between forum assessment start and finish times.
+* Memory allocation increased, which should help the report work on large courses.
+
+
 ## Changes in 2.7
 
 * There is now a way for other plugins to add themselves to this report

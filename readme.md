@@ -11,8 +11,6 @@ This question type was created by the Open University (http://www.open.ac.uk/).
 
 ## Installation and set-up
 
-This plugin should be compatible with Moodle 3.4+.
-
 Once the plugin is installed, you can access the functionality by going to
 Reports -> Dates in the Course administration block.
 
