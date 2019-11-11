@@ -207,7 +207,7 @@ if ($mform->is_cancelled()) {
     // Commit transaction and finish up.
     $transaction->allow_commit();
     rebuild_course_cache($course->id);
-    redirect($PAGE->url);
+    redirect($PAGE->url, get_string('changessaved'));
 }
 
 // Prepare activity type menu.

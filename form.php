@@ -40,7 +40,7 @@ class report_editdates_form extends moodleform {
      * @see lib/moodleform#definition()
      */
     public function definition() {
-        global $CFG, $COURSE, $DB, $PAGE;
+        global $CFG, $DB, $PAGE;
         $mform = $this->_form;
 
         $modinfo       = $this->_customdata['modinfo'];
@@ -57,6 +57,9 @@ class report_editdates_form extends moodleform {
         $mform->addElement('hidden', 'activitytype', $activitytype);
         $mform->setType('activitytype', PARAM_PLUGIN);
 
+        // Invisible static element. Used as the holder for a validation message sometimes.
+        $mform->addElement('static', 'topvalidationsite', '', '');
+
         // Add action button to the top of the form.
         $addactionbuttons = false;
         $this->add_action_buttons();
@@ -64,9 +67,11 @@ class report_editdates_form extends moodleform {
         // Course start date.
         $mform->addElement('header', 'coursestartdateheader', get_string('coursestartdateheader', 'report_editdates'));
         $mform->setExpanded('coursestartdateheader', false);
+
         $mform->addElement('date_time_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
         $mform->setDefault('coursestartdate', $course->startdate);
+
         $mform->addElement('date_time_selector', 'courseenddate', get_string('enddate'), array('optional' => true));
         $mform->addHelpButton('courseenddate', 'enddate');
         $mform->setDefault('courseenddate', $course->enddate);
@@ -357,6 +362,12 @@ class report_editdates_form extends moodleform {
                     }
                 }
             }
+        }
+
+        if (!empty($errors)) {
+            // If there are any validation errors, which may be hidden a long way down this
+            // very big form, put a message at the top too.
+            $errors['topvalidationsite'] = get_string('changesnotsaved', 'report_editdates');
         }
 
         return $errors;
