@@ -46,6 +46,8 @@ $PAGE->set_pagelayout('admin');
 $coursecontext = context_course::instance($course->id);
 require_capability('report/editdates:view', $coursecontext);
 
+raise_memory_limit(MEMORY_EXTRA);
+
 // Fetching all modules in the course.
 $modinfo = get_fast_modinfo($course);
 $cms = $modinfo->get_cms();
