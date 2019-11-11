@@ -32,11 +32,11 @@ class report_editdates_mod_forum_date_extractor
             return array('assesstimestart' => new report_editdates_date_setting(
                                                 get_string('from'),
                                                 $forum->assesstimestart,
-                                                self::DATETIME, false, 5),
+                                                self::DATETIME, false),
                          'assesstimefinish' => new report_editdates_date_setting(
                                                 get_string('to'),
                                                 $forum->assesstimefinish,
-                                                self::DATETIME, false, 5)
+                                                self::DATETIME, false)
             );
         }
         return null;

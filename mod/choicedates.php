@@ -31,12 +31,12 @@ class report_editdates_mod_choice_date_extractor
             return array('timeopen' => new report_editdates_date_setting(
                                 get_string('choiceopen', 'choice'),
                                 $choice->timeopen,
-                                self::DATETIME, false, 5),
+                                self::DATETIME, false),
 
                           'timeclose' => new report_editdates_date_setting(
                                 get_string('choiceclose', 'choice'),
                                 $choice->timeclose,
-                                self::DATETIME, false, 5)
+                                self::DATETIME, false)
             );
         }
         return null;

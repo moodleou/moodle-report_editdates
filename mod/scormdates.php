@@ -31,10 +31,10 @@ class report_editdates_mod_scorm_date_extractor
         $mod = $this->mods[$cm->instance];
         return array('timeopen' => new report_editdates_date_setting(
                                         get_string("scormopen", "scorm"),
-                                        $mod->timeopen, self::DATETIME, true, 5),
+                                        $mod->timeopen, self::DATETIME, true),
                      'timeclose' => new report_editdates_date_setting(
                                         get_string("scormclose", "scorm"),
-                                        $mod->timeclose, self::DATETIME, true, 5)
+                                        $mod->timeclose, self::DATETIME, true)
         );
     }
 

@@ -42,11 +42,11 @@ class report_editdates_mod_dataplus_date_extractor
             $datadatesettings['assesstimestart'] = new report_editdates_date_setting(
                                     get_string('from'),
                                     $data->assesstimestart,
-                                    self::DATETIME, false, 5);
+                                    self::DATETIME, false);
             $datadatesettings['assesstimefinish'] = new report_editdates_date_setting(
                                     get_string('to'),
                                     $data->assesstimefinish,
-                                    self::DATETIME, false, 5);
+                                    self::DATETIME, false);
         }
         return $datadatesettings;
     }

@@ -33,10 +33,10 @@ extends report_editdates_mod_date_extractor {
         return array(
             'timeavailable' => new report_editdates_date_setting(
                     get_string('availabledate', 'assignment'),
-                    $ass->timeavailable, self::DATETIME, true, 5),
+                    $ass->timeavailable, self::DATETIME, true),
             'timedue' => new report_editdates_date_setting(
                     get_string('duedate', 'assignment'),
-                    $ass->timedue, self::DATETIME, true, 5)
+                    $ass->timedue, self::DATETIME, true)
         );
     }
 

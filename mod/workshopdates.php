@@ -31,16 +31,16 @@ class report_editdates_mod_workshop_date_extractor
         $workshop = $this->mods[$cm->instance];
         return array('submissionstart' => new report_editdates_date_setting(
                                         get_string('submissionstart', 'workshop'),
-                                        $workshop->submissionstart, self::DATETIME, true, 5),
+                                        $workshop->submissionstart, self::DATETIME, true),
                      'submissionend' => new report_editdates_date_setting(
                                         get_string('submissionend', 'workshop'),
-                                        $workshop->submissionend, self::DATETIME, true, 5),
+                                        $workshop->submissionend, self::DATETIME, true),
                      'assessmentstart' => new report_editdates_date_setting(
                                         get_string('assessmentstart', 'workshop'),
-                                        $workshop->assessmentstart, self::DATETIME, true, 5),
+                                        $workshop->assessmentstart, self::DATETIME, true),
                      'assessmentend' => new report_editdates_date_setting(
                                         get_string('assessmentend', 'workshop'),
-                                        $workshop->assessmentend, self::DATETIME, true, 5),
+                                        $workshop->assessmentend, self::DATETIME, true),
         );
     }
 

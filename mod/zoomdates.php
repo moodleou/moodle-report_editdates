@@ -36,7 +36,7 @@ class report_editdates_mod_zoom_date_extractor
             return array(
                 'starttime' => new report_editdates_date_setting(
                         get_string('meeting_time', 'zoom'),
-                        $zoom->start_time, self::DATETIME, false, 5),
+                        $zoom->start_time, self::DATETIME, false),
                 );
         }
     }

@@ -31,11 +31,11 @@ class report_editdates_mod_nanogong_date_extractor
         return array('timeavailable' => new report_editdates_date_setting(
                                             get_string('availabledate', 'mod_nanogong'),
                                             $nanogong->timeavailable,
-                                            self::DATETIME, true, 5),
+                                            self::DATETIME, true),
                      'timedue' => new report_editdates_date_setting(
                                             get_string('duedate', 'mod_nanogong'),
                                             $nanogong->timedue,
-                                            self::DATETIME, true, 5)
+                                            self::DATETIME, true)
         );
     }
 

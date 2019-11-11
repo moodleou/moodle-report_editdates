@@ -33,21 +33,21 @@ class report_editdates_mod_forumng_date_extractor
             $forumngdatesettings['ratingfrom'] = new report_editdates_date_setting(
                                                     get_string('ratingfrom', 'forumng'),
                                                     $forumng->ratingfrom,
-                                                    self::DATETIME, true, 5);
+                                                    self::DATETIME, true);
             $forumngdatesettings['ratinguntil'] = new report_editdates_date_setting(
                                                     get_string('ratinguntil', 'forumng'),
                                                     $forumng->ratinguntil,
-                                                    self::DATETIME, true, 5);
+                                                    self::DATETIME, true);
         }
 
         $forumngdatesettings['postingfrom'] = new report_editdates_date_setting(
                                                     get_string('postingfrom', 'forumng'),
                                                     $forumng->postingfrom,
-                                                    self::DATETIME, true, 5);
+                                                    self::DATETIME, true);
         $forumngdatesettings['postinguntil'] = new report_editdates_date_setting(
                                                     get_string('postinguntil', 'forumng'),
                                                     $forumng->postinguntil,
-                                                    self::DATETIME, true, 5);
+                                                    self::DATETIME, true);
         return $forumngdatesettings;
     }
 

@@ -31,10 +31,10 @@ class report_editdates_mod_quiz_date_extractor
         $quiz = $this->mods[$cm->instance];
         return array('timeopen' => new report_editdates_date_setting(
                                         get_string('quizopen', 'quiz'),
-                                        $quiz->timeopen, self::DATETIME, true, 1),
+                                        $quiz->timeopen, self::DATETIME, true),
                      'timeclose' => new report_editdates_date_setting(
                                         get_string('quizclose', 'quiz'),
-                                        $quiz->timeclose, self::DATETIME, true, 1)
+                                        $quiz->timeclose, self::DATETIME, true)
         );
     }
 

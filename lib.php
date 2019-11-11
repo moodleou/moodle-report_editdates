@@ -58,7 +58,7 @@ class report_editdates_date_setting {
     /**
      * Constructor. A quick way to create an initialise an instance.
      */
-    public function __construct($label, $currentvalue, $type, $isoptional, $getstep = 5) {
+    public function __construct($label, $currentvalue, $type, $isoptional, $getstep = 1) {
         $this->label = $label;
         $this->currentvalue = $currentvalue;
         $this->type = $type;

@@ -34,19 +34,19 @@ extends report_editdates_mod_date_extractor {
                 'allowsubmissionsfromdate' => new report_editdates_date_setting(
                         get_string('allowsubmissionsfromdate', 'assign'),
                         $assign->allowsubmissionsfromdate,
-                        self::DATETIME, true, 5),
+                        self::DATETIME, true),
                 'duedate' => new report_editdates_date_setting(
                         get_string('duedate', 'assign'),
                         $assign->duedate,
-                        self::DATETIME, true, 5),
+                        self::DATETIME, true),
                 'cutoffdate' => new report_editdates_date_setting(
                         get_string('cutoffdate', 'assign'),
                         $assign->cutoffdate,
-                        self::DATETIME, true, 5),
+                        self::DATETIME, true),
                 'gradingduedate' => new report_editdates_date_setting(
                         get_string('gradingduedate', 'assign'),
                         $assign->gradingduedate,
-                        self::DATETIME, true, 5),
+                        self::DATETIME, true),
                 );
     }
 

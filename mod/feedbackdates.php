@@ -30,12 +30,12 @@ class report_editdates_mod_feedback_date_extractor
         return array('timeopen' => new report_editdates_date_setting(
                             get_string('feedbackopen', 'feedback'),
                             $feedback->timeopen,
-                            self::DATETIME, true, 5),
+                            self::DATETIME, true),
 
                       'timeclose' => new report_editdates_date_setting(
                             get_string('feedbackclose', 'feedback'),
                             $feedback->timeclose,
-                            self::DATETIME, true, 5)
+                            self::DATETIME, true)
         );
         return null;
     }

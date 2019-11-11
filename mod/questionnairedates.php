@@ -31,10 +31,10 @@ class report_editdates_mod_questionnaire_date_extractor
         $mod = $this->mods[$cm->instance];
         return array('opendate' => new report_editdates_date_setting(
                                         get_string('opendate', 'questionnaire'),
-                                        $mod->opendate, self::DATETIME, true, 5),
+                                        $mod->opendate, self::DATETIME, true),
                     'closedate' => new report_editdates_date_setting(
                                         get_string('closedate', 'questionnaire'),
-                                        $mod->closedate, self::DATETIME, true, 5),
+                                        $mod->closedate, self::DATETIME, true),
         );
     }
 

@@ -30,10 +30,10 @@ class report_editdates_mod_lesson_date_extractor
 
         return array('available' => new report_editdates_date_setting(
                                         get_string('available', 'lesson'),
-                                        $mod->available, self::DATETIME, true, 5),
+                                        $mod->available, self::DATETIME, true),
                       'deadline' => new report_editdates_date_setting(
                                         get_string('deadline', 'lesson'),
-                                        $mod->deadline, self::DATETIME, true, 5)
+                                        $mod->deadline, self::DATETIME, true)
         );
     }
 

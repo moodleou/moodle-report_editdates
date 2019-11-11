@@ -32,10 +32,10 @@ extends report_editdates_mod_date_extractor {
 
         return array('editbegin' => new report_editdates_date_setting(
                                         get_string('editbegin', 'ouwiki'),
-                                        $mod->editbegin, self::DATETIME, true, 5),
+                                        $mod->editbegin, self::DATETIME, true),
                      'editend' => new report_editdates_date_setting(
                                         get_string('editend', 'ouwiki'),
-                                        $mod->editend, self::DATETIME, true, 5)
+                                        $mod->editend, self::DATETIME, true)
         );
 
     }

@@ -30,12 +30,12 @@ class report_editdates_mod_externalquiz_date_extractor
         return array('timeopen' => new report_editdates_date_setting(
                                         get_string('quizopen', 'externalquiz'),
                                         $extquiz->timeopen,
-                                        self::DATETIME, true, 1),
+                                        self::DATETIME, true),
 
                      'timeclose' => new report_editdates_date_setting(
                                         get_string('quizclose', 'externalquiz'),
                                         $extquiz->timeclose,
-                                        self::DATETIME, true, 1)
+                                        self::DATETIME, true)
         );
     }
 
