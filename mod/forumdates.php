@@ -28,18 +28,26 @@ class report_editdates_mod_forum_date_extractor
     public function get_settings(cm_info $cm) {
         $forum = $this->mods[$cm->instance];
 
+        $fields = array();
+        $fields['duedate'] = new report_editdates_date_setting(
+                                           get_string('duedate', 'forum'),
+                                           $forum->duedate,
+                                           self::DATETIME, true);
+        $fields['cutoffdate'] = new report_editdates_date_setting(
+                                              get_string('cutoffdate', 'forum'),
+                                              $forum->cutoffdate,
+                                              self::DATETIME, true);
         if ($forum->assessed) {
-            return array('assesstimestart' => new report_editdates_date_setting(
-                                                get_string('from'),
-                                                $forum->assesstimestart,
-                                                self::DATETIME, true),
-                         'assesstimefinish' => new report_editdates_date_setting(
-                                                get_string('to'),
-                                                $forum->assesstimefinish,
-                                                self::DATETIME, true)
-            );
+            $fields['assesstimestart'] = new report_editdates_date_setting(
+                                             get_string('assesstimefrom', 'report_editdates'),
+                                             $forum->assesstimestart,
+                                             self::DATETIME, true);
+            $fields['assesstimefinish'] = new report_editdates_date_setting(
+                                              get_string('assesstimeto', 'report_editdates'),
+                                              $forum->assesstimefinish,
+                                              self::DATETIME, true);
         }
-        return null;
+        return $fields;
     }
 
     public function validate_dates(cm_info $cm, array $dates) {
