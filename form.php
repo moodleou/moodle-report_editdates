@@ -463,7 +463,7 @@ class report_editdates_form extends moodleform {
                 if ($key == "restrict") { // Process restriction dates.
                     $objects = json_decode($value);
                     foreach ($objects->c as $obj) {
-                        if (is_numeric($obj->t) && $obj->t > 0) {
+                        if (property_exists($obj, 't') && is_numeric($obj->t) && $obj->t > 0) {
                             $sorted[] = array('type' => $mod["type"],
                                               'restric' => true,
                                               'name' => $mod["name"] . ": Restrict Access",
