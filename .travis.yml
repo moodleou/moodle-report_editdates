@@ -19,28 +19,76 @@ cache:
     - $HOME/.composer/cache
     - $HOME/.npm
 
-jobs:
+matrix:
   include:
-    - php: 7.3
-      env:
-        - MOODLE_BRANCH=master
-        - DB=pgsql
-
-    - php: 7.4
-      env:
-        - MOODLE_BRANCH=MOODLE_39_STABLE
-        - DB=mysqli
-
-    - php: 7.3
-      env:
-        - MOODLE_BRANCH=MOODLE_38_STABLE
-        - DB=pgsql
-        - CHECK_GRUNT=yes
-
+    - php: 7.0
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.0
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.1
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.1
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.1
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.1
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.1
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.1
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
     - php: 7.2
-      env:
-        - MOODLE_BRANCH=MOODLE_37_STABLE
-        - DB=mysqli
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_36_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=master
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=master
+    - php: 7.3
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.3
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.3
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.3
+      env: DB=pgsql  MOODLE_BRANCH=master
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=master
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.4
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.4
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.4
+      env: DB=pgsql  MOODLE_BRANCH=master
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=master
 
 before_install:
   - phpenv config-rm xdebug.ini
@@ -49,11 +97,10 @@ before_install:
     export CHECK_GRUNT=no;
     fi
 
-  - if [ -z $NODE ]; then
-    export NODE=14;
-    fi
-  - nvm install $NODE
-  - nvm use $NODE
+  - export MOODLE_VERSION=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
+  - if [ "$MOODLE_VERSION" = 36 ] || [ "$MOODLE_VERSION" -le 34 ]; then NVMVERSION=8.9; else NVMVERSION=14.0.0; fi
+  - nvm install $NVMVERSION;
+  - nvm use $NVMVERSION;
 
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
