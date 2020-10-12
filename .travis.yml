@@ -20,15 +20,8 @@ cache:
     - $HOME/.npm
 
 matrix:
+  fast_finish: true
   include:
-    - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.0
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.1
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.1
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.1
       env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
     - php: 7.1
@@ -37,10 +30,6 @@ matrix:
       env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
     - php: 7.1
       env: DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
-    - php: 7.2
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.2
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.2
       env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
     - php: 7.2
@@ -89,6 +78,19 @@ matrix:
       env: DB=pgsql  MOODLE_BRANCH=master
     - php: 7.4
       env: DB=mysqli MOODLE_BRANCH=master
+  allow_failures:
+    - php: 7.0
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.0
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.1
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.1
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.2
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.2
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
 
 before_install:
   - phpenv config-rm xdebug.ini
