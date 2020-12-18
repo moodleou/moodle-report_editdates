@@ -473,7 +473,7 @@ class report_editdates_form extends moodleform {
                                               'time' => $obj->t);
                         }
                     }
-                } else if (is_numeric($value) && $value > 0) {
+                } else if (is_numeric($value) && $value > 0 && $key !== "name") {
                     $sorted[] = array('type' => $mod["type"],
                                       'name' => $mod["name"] . ": $key",
                                       'icon' => $mod["icon"],
