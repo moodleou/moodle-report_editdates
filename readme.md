@@ -1,4 +1,4 @@
-# Edit dates report [![Build Status](https://travis-ci.org/moodleou/moodle-report_editdates.svg?branch=master)](https://travis-ci.org/moodleou/moodle-report_editdates)
+# Edit dates report
 
 This 'report' is actually a tool that lets you edit all the dates for all
 the activities in your course on a single page.

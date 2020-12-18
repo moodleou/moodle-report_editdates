@@ -1,5 +1,10 @@
 # Change log for the Edit dates report
 
+## Changes in 2.9
+
+* Improved how the options are presented for forums (thanks to Matt Davidson).
+* Fix a minor but in the timeline (thanks to Matt Davidson & Sam Marshall).
+
 
 ## Changes in 2.8
 

@@ -27,7 +27,7 @@ Feature: Timeline view
       | timeopen[minute]    | 00 |
     Given I log out
 
-@javascript @_switch_iframe
+  @javascript @_switch_iframe
   Scenario: Test edit dates report to see if timeline view shows
     Given the following config values are set as admin:
     | timelinemax | 1 | report_editdates |
@@ -39,7 +39,7 @@ Feature: Timeline view
     And I should see "1/1/2020"
     And I should see "1/2/2020"
 
-@javascript @_switch_iframe
+  @javascript @_switch_iframe
   Scenario: Test edit dates report to see if timeline view is hidden
     Given the following config values are set as admin:
     | timelinemax | 0 | report_editdates |
