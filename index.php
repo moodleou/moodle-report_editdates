@@ -206,7 +206,13 @@ if ($mform->is_cancelled()) {
 
     // Commit transaction and finish up.
     $transaction->allow_commit();
+
+    // Rebuild all course cache / calendar dates
     rebuild_course_cache($course->id);
+    $task = new \core\task\refresh_mod_calendar_events_task();
+    $task->set_custom_data(array('courseid' => $course->id));
+    \core\task\manager::queue_adhoc_task($task, true);
+
     redirect($PAGE->url, get_string('changessaved'));
 }
 
