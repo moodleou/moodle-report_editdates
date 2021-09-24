@@ -25,6 +25,7 @@
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/form.php');
+use core\report_helper;
 
 $id = required_param('id', PARAM_INT);
 $activitytype = optional_param('activitytype', '', PARAM_PLUGIN);
@@ -41,6 +42,8 @@ if ($activitytype) {
 }
 $PAGE->set_url('/report/editdates/index.php', $urlparams);
 $PAGE->set_pagelayout('admin');
+$pageurl = new moodle_url('/report/editdates/index.php', $urlparams);
+report_helper::save_selected_report($id, $pageurl);
 
 // Check permissions.
 $coursecontext = context_course::instance($course->id);
@@ -226,6 +229,11 @@ $PAGE->set_heading($course->fullname);
 
 // Displaying the page.
 echo $OUTPUT->header();
+
+// Print the selected dropdown.
+$pluginname = get_string('pluginname', 'report_editdates');
+report_helper::print_report_selector($pluginname);
+
 echo $OUTPUT->heading(format_string($course->fullname));
 
 echo $OUTPUT->heading(get_string('activityfilter', 'report_editdates'));
