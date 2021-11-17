@@ -58,6 +58,9 @@ class report_editdates_form extends moodleform {
         $mform->addElement('hidden', 'activitytype', $activitytype);
         $mform->setType('activitytype', PARAM_PLUGIN);
 
+        // Add number activities warning
+	$mform->addElement('html', '<p>' . get_string('numactivitieswarning', 'report_editdates') . '</p>');
+
         // Invisible static element. Used as the holder for a validation message sometimes.
         $mform->addElement('static', 'topvalidationsite', '', '');
 
