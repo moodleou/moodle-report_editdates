@@ -31,11 +31,9 @@ Feature: Timeline view
   Scenario: Test edit dates report to see if timeline view shows
     Given the following config values are set as admin:
     | timelinemax | 1 | report_editdates |
-    When I log in as "admin"
-    And I am on "Course 1" course homepage
+    When I am on the "Course 1" "course" page logged in as "admin"
     And I navigate to "Reports > Dates" in current page administration
-    And I follow "Dates"
-    And I should see "12/31/2019"
+    Then I should see "12/31/2019"
     And I should see "1/1/2020"
     And I should see "1/2/2020"
 
@@ -43,10 +41,8 @@ Feature: Timeline view
   Scenario: Test edit dates report to see if timeline view is hidden
     Given the following config values are set as admin:
     | timelinemax | 0 | report_editdates |
-    When I log in as "admin"
-    And I am on "Course 1" course homepage
+    When I am on the "Course 1" "course" page logged in as "admin"
     And I navigate to "Reports > Dates" in current page administration
-    And I follow "Dates"
-    And I should not see "12/31/2019"
+    Then I should not see "12/31/2019"
     And I should not see "1/1/2020"
     And I should not see "1/2/2020"
