@@ -42,8 +42,6 @@ if ($activitytype) {
 }
 $PAGE->set_url('/report/editdates/index.php', $urlparams);
 $PAGE->set_pagelayout('admin');
-$pageurl = new moodle_url('/report/editdates/index.php', $urlparams);
-report_helper::save_selected_report($id, $pageurl);
 
 // Check permissions.
 $coursecontext = context_course::instance($course->id);

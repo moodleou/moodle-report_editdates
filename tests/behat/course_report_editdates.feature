@@ -18,8 +18,7 @@ Feature: Edit dates report navigation
 
   @javascript
   Scenario: Selector should be available in the Activities and resources page
-    Given I log in as "admin"
-    And I am on "Course 1" course homepage
+    Given I am on the "Course 1" "course" page logged in as "admin"
     When I navigate to "Reports > Dates" in current page administration
     Then "Report" "field" should exist
     And the "Report" select box should contain "Dates"

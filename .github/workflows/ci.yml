@@ -14,12 +14,6 @@ jobs:
           - php: '7.4'
             moodle-branch: 'MOODLE_311_STABLE'
             database: 'mariadb'
-          - php: '7.3'
-            moodle-branch: 'MOODLE_310_STABLE'
-            database: 'pgsql'
-          - php: '7.2'
-            moodle-branch: 'MOODLE_39_STABLE'
-            database: 'mariadb'
 
     services:
       postgres:
@@ -49,11 +43,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: plugin
-
-      - name: Install node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.15.0'
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
