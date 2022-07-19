@@ -25,7 +25,8 @@ Feature: Edit course plugin dates
   @javascript @_switch_iframe
   Scenario: Test edit dates report can be used to change plugin instance dates
     When I am on the "Course 1" "course" page logged in as "admin"
-    And I navigate to "Reports > Dates" in current page administration
+    And I navigate to "Reports" in current page administration
+    And I click on "Dates" "link"
     Then I should see "Course 1"
     And I should see "Activity view filter "
     And I follow "Expand all"

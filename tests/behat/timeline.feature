@@ -32,7 +32,8 @@ Feature: Timeline view
     Given the following config values are set as admin:
     | timelinemax | 1 | report_editdates |
     When I am on the "Course 1" "course" page logged in as "admin"
-    And I navigate to "Reports > Dates" in current page administration
+    And I navigate to "Reports" in current page administration
+    And I click on "Dates" "link"
     Then I should see "12/31/2019"
     And I should see "1/1/2020"
     And I should see "1/2/2020"
@@ -42,7 +43,8 @@ Feature: Timeline view
     Given the following config values are set as admin:
     | timelinemax | 0 | report_editdates |
     When I am on the "Course 1" "course" page logged in as "admin"
-    And I navigate to "Reports > Dates" in current page administration
+    And I navigate to "Reports" in current page administration
+    And I click on "Dates" "link"
     Then I should not see "12/31/2019"
     And I should not see "1/1/2020"
     And I should not see "1/2/2020"
