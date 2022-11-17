@@ -239,4 +239,5 @@ echo $OUTPUT->render($select);
 
 $mform->display();
 
+$PAGE->requires->js_call_amd('report_editdates/datehelper', 'init');
 echo $OUTPUT->footer();
