@@ -76,11 +76,11 @@
     padding: 2px;
 }
 
-.path-report-editdates .afterend select {
+.path-report-editdates .outofrange select {
     color: red;
 }
 
-.path-report-editdates div.row.afterend .col-form-label::after {
+.path-report-editdates div.row.outofrange .col-form-label::after {
     content: "\f071";
     font-family: "fontawesome";
     color: orange;

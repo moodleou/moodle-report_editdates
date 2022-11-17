@@ -24,18 +24,25 @@ import * as ModalFactory from 'core/modal_factory';
 import {get_string as getString} from 'core/str';
 
 let datetimeSelectors = {};
-let endDate = {};
-const classEnd = "afterend";
+let startDate = {};
+let endDate = new Date("December 31, 2099 23:59:59");
+const classOutOfRange = "outofrange";
 
 /**
  * Initialiser function.
  */
 export const init = () => {
     datetimeSelectors = document.querySelectorAll("div[data-fieldtype='date_time_selector']");
+    let courseStart = datetimeSelectors.item(0);
     let courseEnd = datetimeSelectors.item(1);
-    endDate = getDate(courseEnd);
+    startDate = getDate(courseStart);
+    let optional = courseEnd.querySelector("input[type='checkbox']");
+    if (optional.checked) {
+        endDate = getDate(courseEnd);
+    }
 
     // Event Listeners.
+    courseStart.addEventListener("change", startDateChanged);
     courseEnd.addEventListener("change", endDateChanged);
     // Activity module date time selector events.
     for (const date of datetimeSelectors.entries()) {
@@ -60,14 +67,48 @@ const updateDates = () => {
         function() {
             let el = datepicker.calendarimage.getDOMNode();
             let datetimeSelector = el.closest("div[data-fieldtype='date_time_selector']");
-            if (datetimeSelector === datetimeSelectors.item(1)) {
+            if (datetimeSelector === datetimeSelectors.item(0)) {
+                startDateChanged();
+            } else if (datetimeSelector === datetimeSelectors.item(1)) {
                 endDateChanged();
             } else {
-                checkEndDate(datetimeSelector);
+                checkDateRange(datetimeSelector);
             }
         },
         100
     );
+};
+
+/**
+ * The start date of the course has been changed.
+ * Adjust all other dates accordingly if desired.
+ * @returns {*}
+ */
+const startDateChanged = () => {
+    let datesOutOfRange = 0;
+    startDate = getDate(datetimeSelectors.item(0));
+    for (const date of datetimeSelectors.entries()) {
+        if (date[0] > 1) {
+            let optional = date[1].querySelector("input[type='checkbox']");
+            if (optional === null || optional.checked) {
+                datesOutOfRange += checkDateRange(date[1]);
+            }
+        }
+    }
+
+    if (datesOutOfRange > 0) {
+        return ModalFactory.create({
+            type: ModalFactory.types.DEFAULT,
+            title: getString('datesoutofrange_title', 'report_editdates'),
+            body: getString('datesoutofrange_body', 'report_editdates')
+        })
+            .then(modal => {
+                modal.show();
+                return modal;
+            });
+    }
+
+    return false;
 };
 
 /**
@@ -76,22 +117,22 @@ const updateDates = () => {
  * @returns {*}
  */
 const endDateChanged = () => {
-    let datesPastEnd = 0;
+    let datesOutOfRange = 0;
     endDate = getDate(datetimeSelectors.item(1));
     for (const date of datetimeSelectors.entries()) {
         if (date[0] > 1) {
             let optional = date[1].querySelector("input[type='checkbox']");
             if (optional === null || optional.checked) {
-                datesPastEnd += checkEndDate(date[1]);
+                datesOutOfRange += checkDateRange(date[1]);
             }
         }
     }
 
-    if (datesPastEnd > 0) {
+    if (datesOutOfRange > 0) {
         return ModalFactory.create({
             type: ModalFactory.types.DEFAULT,
-            title: getString('datesafterend_title', 'report_editdates'),
-            body: getString('datesafterend_body', 'report_editdates')
+            title: getString('datesoutofrange_title', 'report_editdates'),
+            body: getString('datesoutofrange_body', 'report_editdates')
         })
             .then(modal => {
                 modal.show();
@@ -109,7 +150,7 @@ const modDateChanged = (ev) => {
     // Check against course end date.
     let container = ev.target.closest("div[data-fieldtype='date_time_selector']");
 
-    checkEndDate(container);
+    checkDateRange(container);
 };
 
 /**
@@ -137,19 +178,20 @@ const getDate = (dateEl) => {
  * @param {HTMLElement} el
  * @returns {boolean}
  */
-const checkEndDate = (el) => {
-    let afterEndDate = false;
-    if (getDate(el) > endDate) {
-        el.parentNode.classList.add(classEnd);
+const checkDateRange = (el) => {
+    let outOfRange = false;
+    let modDate = getDate(el);
+    if (modDate > endDate || modDate < startDate) {
+        el.parentNode.classList.add(classOutOfRange);
         for (const input of el.querySelectorAll(".form-group").values()) {
-            input.classList.add(classEnd);
+            input.classList.add(classOutOfRange);
         }
-        afterEndDate = true;
+        outOfRange = true;
     } else {
-        el.parentNode.classList.remove(classEnd);
+        el.parentNode.classList.remove(classOutOfRange);
         for (const input of el.querySelectorAll(".form-group").values()) {
-            input.classList.remove(classEnd);
+            input.classList.remove(classOutOfRange);
         }
     }
-    return afterEndDate;
+    return outOfRange;
 };

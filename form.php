@@ -190,12 +190,15 @@ class report_editdates_form extends moodleform {
                     if ($mod && ($cmdatesettings = $mod->get_settings($cm))) {
                         // Added activity name on the form.
                         foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
-                            $aferendclass = $cmdatesetting->currentvalue > $course->enddate ? 'afterend' : '';
+                            $dateoutofrange = ($cmdatesetting->currentvalue > $course->enddate && $course->enddate != 0) ||
+                                $cmdatesetting->currentvalue < $course->startdate &&
+                                $cmdatesetting->currentvalue != 0;
+                            $dateoutofrangeclass = $dateoutofrange ? 'outofrange' : '';
                             $elname = 'date_mod_'.$cm->id.'_'.$cmdatetype;
                             $mform->addElement($cmdatesetting->type, $elname,
                                     $cmdatesetting->label, array(
                                     'optional' => $cmdatesetting->isoptional,
-                                    'step' => $cmdatesetting->getstep), ['class' => $aferendclass]);
+                                    'step' => $cmdatesetting->getstep), ['class' => $dateoutofrangeclass]);
                             $mform->setDefault($elname, $cmdatesetting->currentvalue);
                             $timeline[$cm->id] = array_merge($timeline[$cm->id],
                                                              array($cmdatesetting->label => $cmdatesetting->currentvalue));
