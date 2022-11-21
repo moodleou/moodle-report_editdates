@@ -69,6 +69,9 @@ class report_editdates_form extends moodleform {
         $mform->addElement('header', 'coursestartdateheader', get_string('coursestartdateheader', 'report_editdates'));
         $mform->setExpanded('coursestartdateheader', false);
 
+        $mform->addElement('checkbox', 'movealldates', get_string('movealldates', 'report_editdates'));
+        $mform->addHelpButton('movealldates', 'movealldates', 'report_editdates');
+
         $mform->addElement('date_time_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
         $mform->setDefault('coursestartdate', $course->startdate);
@@ -190,11 +193,15 @@ class report_editdates_form extends moodleform {
                     if ($mod && ($cmdatesettings = $mod->get_settings($cm))) {
                         // Added activity name on the form.
                         foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
+                            $dateoutofrange = ($cmdatesetting->currentvalue > $course->enddate && $course->enddate != 0) ||
+                                $cmdatesetting->currentvalue < $course->startdate &&
+                                $cmdatesetting->currentvalue != 0;
+                            $dateoutofrangeclass = $dateoutofrange ? 'outofrange' : '';
                             $elname = 'date_mod_'.$cm->id.'_'.$cmdatetype;
                             $mform->addElement($cmdatesetting->type, $elname,
                                     $cmdatesetting->label, array(
                                     'optional' => $cmdatesetting->isoptional,
-                                    'step' => $cmdatesetting->getstep));
+                                    'step' => $cmdatesetting->getstep), ['class' => $dateoutofrangeclass]);
                             $mform->setDefault($elname, $cmdatesetting->currentvalue);
                             $timeline[$cm->id] = array_merge($timeline[$cm->id],
                                                              array($cmdatesetting->label => $cmdatesetting->currentvalue));

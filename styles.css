@@ -75,3 +75,13 @@
     border-radius: 5px;
     padding: 2px;
 }
+
+.path-report-editdates .outofrange select {
+    color: red;
+}
+
+.path-report-editdates div.row.outofrange .col-form-label::after {
+    content: "\f071";
+    font-family: "fontawesome";
+    color: orange;
+}

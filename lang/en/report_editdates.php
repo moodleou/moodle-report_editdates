@@ -56,3 +56,10 @@ $string['addrestrictedaccess'] = 'Add restricted access (opens a new window)';
 $string['editrestrictedaccess'] = 'Edit restricted access (opens a new window)';
 $string['event:reportviewed'] = 'Edit dates report viewed';
 $string['privacy:metadata'] = 'The Dates plugin does not store any personal data.';
+$string['datesoutofrange_title'] = 'Uh oh';
+$string['datesoutofrange_body'] = 'There are one or more dates that are either after the end of the course or
+before the start of the course. You may want to check the dates on this page.';
+$string['movealldates'] = 'Move all other dates';
+$string['movealldates_help'] = 'When you change the course start date, all other enabled dates on this page 
+(including the course end date) will be changed by the same amount. You will still need to save the changes.';
+
