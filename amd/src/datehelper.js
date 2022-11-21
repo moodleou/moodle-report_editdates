@@ -23,15 +23,17 @@
 import * as ModalFactory from 'core/modal_factory';
 import {get_string as getString} from 'core/str';
 
+const classOutOfRange = "outofrange";
+const farawayDate = "December 31, 2099 23:59:59";
 let datetimeSelectors = {};
 let startDate = {};
-let endDate = new Date("December 31, 2099 23:59:59");
-const classOutOfRange = "outofrange";
+let endDate = new Date(farawayDate);
 
 /**
  * Initialiser function.
  */
 export const init = () => {
+    // Give our variables values.
     datetimeSelectors = document.querySelectorAll("div[data-fieldtype='date_time_selector']");
     let courseStart = datetimeSelectors.item(0);
     let courseEnd = datetimeSelectors.item(1);
@@ -41,7 +43,7 @@ export const init = () => {
         endDate = getDate(courseEnd);
     }
 
-    // Event Listeners.
+    // Add some event Listeners.
     courseStart.addEventListener("change", startDateChanged);
     courseEnd.addEventListener("change", endDateChanged);
     // Activity module date time selector events.
@@ -82,63 +84,25 @@ const updateDates = () => {
 /**
  * The start date of the course has been changed.
  * Adjust all other dates accordingly if desired.
- * @returns {*}
  */
 const startDateChanged = () => {
-    let datesOutOfRange = 0;
-    startDate = getDate(datetimeSelectors.item(0));
-    for (const date of datetimeSelectors.entries()) {
-        if (date[0] > 1) {
-            let optional = date[1].querySelector("input[type='checkbox']");
-            if (optional === null || optional.checked) {
-                datesOutOfRange += checkDateRange(date[1]);
-            }
-        }
-    }
-
-    if (datesOutOfRange > 0) {
-        return ModalFactory.create({
-            type: ModalFactory.types.DEFAULT,
-            title: getString('datesoutofrange_title', 'report_editdates'),
-            body: getString('datesoutofrange_body', 'report_editdates')
-        })
-            .then(modal => {
-                modal.show();
-                return modal;
-            });
-    }
-
-    return false;
+    startDate = adjustDates();
+    checkAllDatesRange();
 };
 
 /**
  * The end date of the course has been changed.
  * Check if any activity module dates are after this date.
- * @returns {*}
  */
 const endDateChanged = () => {
-    let datesOutOfRange = 0;
-    endDate = getDate(datetimeSelectors.item(1));
-    for (const date of datetimeSelectors.entries()) {
-        if (date[0] > 1) {
-            let optional = date[1].querySelector("input[type='checkbox']");
-            if (optional === null || optional.checked) {
-                datesOutOfRange += checkDateRange(date[1]);
-            }
-        }
+    let endDateSelector = datetimeSelectors.item(1);
+    let optional = endDateSelector.querySelector("input[type='checkbox']");
+    if (optional.checked) {
+        endDate = getDate(endDateSelector);
+    } else {
+        endDate = new Date(farawayDate);
     }
-
-    if (datesOutOfRange > 0) {
-        return ModalFactory.create({
-            type: ModalFactory.types.DEFAULT,
-            title: getString('datesoutofrange_title', 'report_editdates'),
-            body: getString('datesoutofrange_body', 'report_editdates')
-        })
-            .then(modal => {
-                modal.show();
-                return modal;
-            });
-    }
+    checkAllDatesRange();
 };
 
 /**
@@ -174,6 +138,56 @@ const getDate = (dateEl) => {
 };
 
 /**
+ * Update the select DOM elements with a given Date object.
+ * @param {HTMLElement} dateEl
+ * @param {Date} date
+ */
+const setDate = (dateEl, date) => {
+    let year = dateEl.querySelector(".fdate_time_selector > div:nth-child(3) select");
+    let month = dateEl.querySelector(".fdate_time_selector > div:nth-child(2) select");
+    let day = dateEl.querySelector(".fdate_time_selector > div:nth-child(1) select");
+    let hour = dateEl.querySelector(".fdate_time_selector > div:nth-child(4) select");
+    let minute = dateEl.querySelector(".fdate_time_selector > div:nth-child(5) select");
+    year.querySelector("[value='" + date.getFullYear() + "']").selected = "selected";
+    month.querySelector("[value='" + (date.getMonth() + 1) + "']").selected = "selected";
+    day.querySelector("[value='" + date.getDate() + "']").selected = "selected";
+    hour.querySelector("[value='" + date.getHours() + "']").selected = "selected";
+    minute.querySelector("[value='" + date.getMinutes() + "']").selected = "selected";
+};
+
+/**
+ * Check if the date change has caused any dates to be outside the course start and end.
+ * @returns {boolean|*}
+ */
+const checkAllDatesRange = () => {
+    let datesOutOfRange = 0;
+    // Loop dates and if they are enabled then check the date range.
+    for (const date of datetimeSelectors.entries()) {
+        if (date[0] > 1) {
+            let optional = date[1].querySelector("input[type='checkbox']");
+            if (optional === null || optional.checked) {
+                datesOutOfRange += checkDateRange(date[1]);
+            }
+        }
+    }
+
+    // Warn the person about it.
+    if (datesOutOfRange > 0) {
+        return ModalFactory.create({
+            type: ModalFactory.types.DEFAULT,
+            title: getString('datesoutofrange_title', 'report_editdates'),
+            body: getString('datesoutofrange_body', 'report_editdates')
+        })
+            .then(modal => {
+                modal.show();
+                return modal;
+            });
+    }
+
+    return false;
+};
+
+/**
  * Compare the date with the course end date. Toggle CSS class of element.
  * @param {HTMLElement} el
  * @returns {boolean}
@@ -194,4 +208,43 @@ const checkDateRange = (el) => {
         }
     }
     return outOfRange;
+};
+
+/**
+ * Change the enabled dates by the amount the start date has been shifted.
+ * @returns {Date}
+ */
+const adjustDates = () => {
+    if (!document.getElementById("id_movealldates").checked) {
+        return startDate;
+    }
+    // Determine the change.
+    let newStart = getDate(datetimeSelectors.item(0));
+    let dst1 = startDate.getTimezoneOffset() - newStart.getTimezoneOffset(); // Account for daylight savings shift.
+    let change = newStart - startDate + (dst1 * 60000);
+
+    // Update all enabled dates.
+    for (const date of datetimeSelectors.entries()) {
+        if (date[0] > 0) {
+            let optional = date[1].querySelector("input[type='checkbox']");
+            if (optional === null || optional.checked) {
+                let currDate = getDate(date[1]);
+                let newDate = new Date(currDate.getTime() + change);
+                let dst2 = newDate.getTimezoneOffset() - currDate.getTimezoneOffset();
+                newDate = new Date(newDate.getTime() + (dst2 * 60000));
+                setDate(date[1], newDate);
+            }
+        }
+    }
+
+    // Update the stored value for the end date.
+    let endDateSelector = datetimeSelectors.item(1);
+    let optional = endDateSelector.querySelector("input[type='checkbox']");
+    if (optional.checked) {
+        endDate = getDate(endDateSelector);
+    } else {
+        endDate = new Date(farawayDate);
+    }
+
+    return newStart;
 };
