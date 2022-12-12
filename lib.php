@@ -167,6 +167,22 @@ abstract class report_editdates_mod_date_extractor {
 
     /**
      * Save the new dates for this course_module instance.
+     *
+     * Having this method final gives us a possibilities to
+     * add any logic (e.g. triggering events) before or after saving dates for any activity.
+     *
+     * @param \cm_info $cm the activity to save the dates for.
+     * @param array $dates a list of new dates.
+     *
+     * @throws \coding_exception
+     */
+    final public function save_new_dates(cm_info $cm, array $dates) {
+        $this->save_dates($cm, $dates);
+        \core\event\course_module_updated::create_from_cm($cm)->trigger();
+    }
+
+    /**
+     * Save the new dates for this course_module instance.
      * @param cm_info $cm the activity to save the dates for.
      */
     public function save_dates(cm_info $cm, array $dates) {
@@ -282,8 +298,22 @@ abstract class report_editdates_block_date_extractor {
     abstract public function validate_dates(block_base $block, array $dates);
 
     /**
+     * Save the new dates for this block instance.
+     *
+     * Having this method final gives us a possibilities to
+     * add any logic (e.g. triggering events) before or after saving dates for any block.
+     *
+     * @param \block_base $block the block to save the dates for.
+     * @param array $dates a list of new dates.
+     */
+    final public function save_new_dates(block_base $block, array $dates) {
+        $this->save_dates($block, $dates);
+    }
+
+    /**
      * Save the new dates for this course_module instance.
-     * @param cm_info $cm the activity to save the dates for.
+     * @param \block_base $block the block to save the dates for.
+     * @param array $dates a list of new dates.
      */
     public function save_dates(block_base $block, array $dates) {
         global $DB;
@@ -435,7 +465,7 @@ function report_editdates_update_dates_by_section($courseid, array $sectionnums,
 
             $modinstance = report_editdates_mod_data_date_extractor::make($cm->modname, $course);
             if ($modinstance) {
-                $modinstance->save_dates($cm, $datesettings);
+                $modinstance->save_new_dates($cm, $datesettings);
             }
         }
         $transaction->allow_commit();
