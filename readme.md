@@ -41,3 +41,15 @@ For other plugins, there is the option to put the class in the other plugin.
 You need to make a class called `mod_`_mymodname_`_report_editdates_integration`,
 which therefore goes in mod/_mymodname_/classes/report_editdates_integration.php.
 For blocks, the equivalent class is `block_`_myblock_`_report_editdates_integration`.
+
+## Available callbacks 
+
+To be aligned with a core extension point for the activity form via core callbacks, 
+this plugin allows developers to extend dates form the same way.
+                           
+Supported callbacks:
+
+* report_editdates_form_elements
+* report_editdates_form_definition_after_data
+* report_editdates_form_validation
+* report_editdates_form_post_actions

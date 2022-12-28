@@ -86,8 +86,15 @@ if ($mform->is_cancelled()) {
     redirect($returnurl);
 
 } else if ($data = $mform->get_data()) {
-    // Process submitted data.
+    // Modify submitted data.
+    $callbacks = get_plugins_with_function('report_editdates_form_post_actions', 'lib.php');
+    foreach ($callbacks as $type => $plugins) {
+        foreach ($plugins as $plugin => $pluginfunction) {
+            $data = $pluginfunction($data, $course);
+        }
+    }
 
+    // Process submitted data.
     $moddatesettings = array();
     $blockdatesettings = array();
     $sectiondatesettings = array();
