@@ -160,6 +160,11 @@ class report_editdates_form extends moodleform {
                         continue;
                     }
 
+                    // Only include activity types enabled in settings.
+                    if (!report_editdates_mod_enabled($cm->modname)) {
+                        continue;
+                    }
+
                     // If activity filter is on, then filter module by activity type.
                     if ($activitytype && ($cm->modname != $activitytype && $activitytype != "all")) {
                         continue;

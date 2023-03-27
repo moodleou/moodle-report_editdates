@@ -70,6 +70,11 @@ foreach ($modinfo->get_sections() as $sectionnum => $section) {
             continue;
         }
 
+        // Only include activity types enabled in settings.
+        if (!report_editdates_mod_enabled($cm->modname)) {
+            continue;
+        }
+
         $activitiesdisplayed += 1;
         $activitytypes[$cm->modname] = get_string('modulename', $cm->modname);
     }
