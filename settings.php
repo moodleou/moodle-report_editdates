@@ -39,4 +39,12 @@ if ($ADMIN->fulltree) {
             get_string('timelinemaxdesc', 'report_editdates'),
             3,
             $options));
+
+    // Add an admin setting to specify which activity types are enabled in the report.
+    $allmods = get_module_types_names();
+    $settings->add(new admin_setting_configmultiselect('report_editdates/enabledmods',
+        get_string('enabledmods', 'report_editdates'),
+        get_string('enabledmodsdesc', 'report_editdates'),
+        array_keys($allmods), // All activity types are enabled by default.
+        $allmods));
 }

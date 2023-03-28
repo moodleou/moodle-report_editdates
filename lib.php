@@ -462,3 +462,12 @@ function report_editdates_cm_has_dates($cm, $course) {
 
     return (bool) report_editdates_mod_date_extractor::make($cm->modname, $course);
 }
+
+/**
+ * Checks if the given activity type is enabled in the plugin's admin settings.
+ * @param string $modname Activity type to check.
+ * @return bool Returns true if activity type is enabled or false otherwise.
+ */
+function report_editdates_mod_enabled(string $modname) {
+    return in_array($modname, explode(',', get_config('report_editdates', 'enabledmods')));
+}
