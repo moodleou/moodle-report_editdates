@@ -78,24 +78,4 @@ EOF;
         }
         return new \moodle_url('/report/editdates/index.php', $params);
     }
-
-    public static function get_legacy_eventname() {
-        return 'report edit dates';
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array(
-                $this->courseid,
-                "course",
-                "report edit dates",
-                "report/editdates/index.php?id={$this->courseid}",
-                $this->contextinstanceid
-        );
-    }
-
 }
