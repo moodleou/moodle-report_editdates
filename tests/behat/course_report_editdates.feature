@@ -21,6 +21,5 @@ Feature: Edit dates report navigation
     Given I am on the "Course 1" "course" page logged in as "admin"
     When I navigate to "Reports" in current page administration
     And I click on "Dates" "link"
-    Then "Report" "field" should exist
-    And the "Report" select box should contain "Dates"
-    And the field "Report" matches value "Dates"
+    Then "Report" "field" should exist in the "tertiary-navigation" "region"
+    And I should see "Dates" in the "tertiary-navigation" "region"
