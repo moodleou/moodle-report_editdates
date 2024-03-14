@@ -29,7 +29,7 @@ Feature: Edit course plugin dates
     And I click on "Dates" "link"
     Then I should see "Course 1"
     And I should see "Activity view filter "
-    And I follow "Expand all"
+    And I click on "Expand all" "link" in the "region-main" "region"
     Then I should see "Course start date"
     And I should see "Test quiz name 1"
 
@@ -39,7 +39,7 @@ Feature: Edit course plugin dates
     And I press "Save changes"
     Then I should see "Course 1"
     And I should see "Activity view filter "
-    And I follow "Expand all"
+    And I click on "Expand all" "link" in the "region-main" "region"
     Then I should see "Course start date"
     And I should see "Test quiz name 1"
     And I should see "1" in the "Open the quiz" "fieldset"
