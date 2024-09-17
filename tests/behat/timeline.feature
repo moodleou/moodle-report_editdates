@@ -16,16 +16,10 @@ Feature: Timeline view
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Quiz" to section "1" and I fill the form with:
-      | Name | Test quiz              |
-      | Description | Test forum description |
-      | timeopen[enabled] | 1 |
-      | timeopen[day]       | 1 |
-      | timeopen[month]     | January |
-      | timeopen[year]      | 2020 |
-      | timeopen[hour]      | 08 |
-      | timeopen[minute]    | 00 |
-    Given I log out
+    And the following "activities" exist:
+      | activity | name      | course | section | timeopen   |
+      | quiz     | Test quiz | C1     | 1       | 1577865600 |
+    And I log out
 
   @javascript @_switch_iframe
   Scenario: Test edit dates report to see if timeline view shows
