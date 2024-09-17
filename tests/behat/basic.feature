@@ -17,10 +17,10 @@ Feature: Edit course plugin dates
       | student1 | C1     | student        |
     And I am on the "Course 1" "course" page logged in as "teacher1"
     And I turn editing mode on
-    And I add a "Quiz" to section "1" and I fill the form with:
-      | Name        | Test quiz name 1       |
-      | Description | Test quiz description  |
-    Given I log out
+    And the following "activities" exist:
+      | activity | name             | intro                 | course |
+      | quiz     | Test quiz name 1 | Test quiz description | C1     |
+    And I log out
 
   @javascript @_switch_iframe
   Scenario: Test edit dates report can be used to change plugin instance dates
