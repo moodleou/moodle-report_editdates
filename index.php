@@ -205,7 +205,7 @@ if ($mform->is_cancelled()) {
         $cm = $cms[$modid];
         $mod = report_editdates_mod_date_extractor::make($cm->modname, $course);
         if ($mod) {
-            $mod->save_dates($cm, $datesettings);
+            $mod->save_new_dates($cm, $datesettings);
         }
     }
 
@@ -222,7 +222,7 @@ if ($mform->is_cancelled()) {
             $blockdatextrator =
             report_editdates_block_date_extractor::make($block->blockname, $course);
             if ($blockdatextrator) {
-                $blockdatextrator->save_dates($blockobj, $datesettings);
+                $blockdatextrator->save_new_dates($blockobj, $datesettings);
             }
         }
     }
