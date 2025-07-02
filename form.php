@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * This is form to display the modules for editdates reports
  *
@@ -36,26 +35,72 @@ require_once(dirname(__FILE__) . '/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_editdates_form extends moodleform {
+
     /**
+     * Mod info instance set for the form.
+     * @var \course_modinfo|null
+     */
+    protected $modinfo;
+
+    /**
+     * Course.
+     * @var \stdClass
+     */
+    protected $course;
+
+    /**
+     * Selected activity type.
+     * @var string
+     */
+    protected $activitytype;
+
+    /**
+     * Get course mod info instance set for the form.
+     * @return course_modinfo | null
+     */
+    public function get_modinfo(): ?course_modinfo {
+        return $this->modinfo;
+    }
+
+    /**
+     * Course object.
+     * @return \stdClass
+     */
+    public function get_course(): stdClass {
+        return $this->course;
+    }
+
+    /**
+     * Selected activity type.
+     * @return string
+     */
+    public function get_activitytype(): string {
+        return $this->activitytype;
+    }
+
+    /**
+     * This function is used to define the form elements
+     * for the mod_form.php file.
+     *
      * @see lib/moodleform#definition()
      */
     public function definition() {
         global $CFG, $DB, $PAGE;
         $mform = $this->_form;
 
-        $modinfo       = $this->_customdata['modinfo'];
-        $course        = $this->_customdata['course'];
-        $activitytype  = $this->_customdata['activitytype'];
+        $this->modinfo = $this->_customdata['modinfo'];
+        $this->course  = $this->_customdata['course'];
+        $this->activitytype = $this->_customdata['activitytype'];
         $config = get_config('report_editdates');
 
         $coursehasavailability = !empty($CFG->enableavailability);
-        $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($course->enablecompletion);
+        $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($this->course->enablecompletion);
 
         // Context instance of the course.
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = context_course::instance($this->course->id);
 
         // Store current activity type.
-        $mform->addElement('hidden', 'activitytype', $activitytype);
+        $mform->addElement('hidden', 'activitytype', $this->activitytype);
         $mform->setType('activitytype', PARAM_PLUGIN);
 
         // Invisible static element. Used as the holder for a validation message sometimes.
@@ -71,11 +116,11 @@ class report_editdates_form extends moodleform {
 
         $mform->addElement('date_time_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
-        $mform->setDefault('coursestartdate', $course->startdate);
+        $mform->setDefault('coursestartdate', $this->course->startdate);
 
-        $mform->addElement('date_time_selector', 'courseenddate', get_string('enddate'), array('optional' => true));
+        $mform->addElement('date_time_selector', 'courseenddate', get_string('enddate'), ['optional' => true]);
         $mform->addHelpButton('courseenddate', 'enddate');
-        $mform->setDefault('courseenddate', $course->enddate);
+        $mform->setDefault('courseenddate', $this->course->enddate);
 
         // If user is not capable, make it read only.
         if (!has_capability('moodle/course:update', $coursecontext)) {
@@ -93,9 +138,9 @@ class report_editdates_form extends moodleform {
         $prevsectionnum = -1;
 
         // Cycle through all the sections in the course.
-        $cms = $modinfo->get_cms();
-        $sections = $modinfo->get_section_info_all();
-        $timeline = array();
+        $cms = $this->modinfo->get_cms();
+        $sections = $this->modinfo->get_section_info_all();
+        $timeline = [];
         foreach ($sections as $sectionnum => $section) {
             $ismodadded = false;
             $sectionname = '';
@@ -107,7 +152,7 @@ class report_editdates_form extends moodleform {
 
             // New section, create header.
             if ($prevsectionnum != $sectionnum) {
-                $sectionname = get_section_name($course, $section);
+                $sectionname = get_section_name($this->course, $section);
                 $headername = 'section' . $sectionnum . 'header';
                 $mform->addElement('header', $headername, $sectionname);
                 $mform->setExpanded($headername, false);
@@ -115,35 +160,36 @@ class report_editdates_form extends moodleform {
             }
 
             if ($sectionnum > 0 && $coursehasavailability) {
-                $editsettingurl = new moodle_url('/course/editsection.php', array('id' => $section->id));
+                $editsettingurl = new moodle_url('/course/editsection.php', ['id' => $section->id]);
                 if ($section->availability) {
                     // If there are retricted access date settings.
                     if (strpos($section->availability, '"type":"date"') !== false) {
                         $editsettingurltext = html_writer::tag('a',
                                 get_string('editrestrictedaccess', 'report_editdates'),
-                                        array('href' => $editsettingurl->out(false),
+                                        ['href' => $editsettingurl->out(false),
                                         'target' => '_blank',
-                                        'class' => 'editdates_highlight'));
+                                        'class' => 'editdates_highlight']);
                         $mform->addElement('static', '',
                                 get_string('hasrestrictedaccess', 'report_editdates', ($sectionname)),
                                         $editsettingurltext);
-                        $iconmarkup = html_writer::tag('i', '', array('class' => 'icon fa fa-folder-open',
-                                                                      'style' => 'margin: 4px;'));
-                        $timeline['section'.$sectionnum] = array('type' => 'section',
-                                                                 'name' => $sectionname,
-                                                                 'icon' => $iconmarkup,
-                                                                 'url' => $editsettingurl,
-                                                                 'restrict' => $section->availability,
-                                                                 'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
-                                                                                     mt_rand( 0, 255 ) . ',' .
-                                                                                     mt_rand( 0, 255 ) . ', .5)'
-                                                            );
+                        $iconmarkup = html_writer::tag('i', '', ['class' => 'icon fa fa-folder-open',
+                                                                      'style' => 'margin: 4px;']);
+                        $timeline['section'.$sectionnum] = [
+                            'type' => 'section',
+                            'name' => $sectionname,
+                            'icon' => $iconmarkup,
+                            'url' => $editsettingurl,
+                            'restrict' => $section->availability,
+                            'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
+                                                mt_rand( 0, 255 ) . ',' .
+                                                mt_rand( 0, 255 ) . ', .5)',
+                        ];
                     }
                 } else {
                     $editsettingurltext = html_writer::tag('a',
                                                            get_string('addrestrictedaccess', 'report_editdates', ($sectionname)),
-                                                           array('href' => $editsettingurl->out(false),
-                                                                 'target' => '_blank'));
+                                                           ['href' => $editsettingurl->out(false),
+                                                                 'target' => '_blank']);
                     $mform->addElement('static', '',
                                        get_string('norestrictedaccess', 'report_editdates', ($sectionname)),
                                        $editsettingurltext);
@@ -151,8 +197,8 @@ class report_editdates_form extends moodleform {
             }
 
             // Cycle through each module in a section.
-            if (isset($modinfo->sections[$sectionnum])) {
-                foreach ($modinfo->sections[$sectionnum] as $cmid) {
+            if (isset($this->modinfo->sections[$sectionnum])) {
+                foreach ($this->modinfo->sections[$sectionnum] as $cmid) {
                     $cm = $cms[$cmid];
 
                     // No need to display/continue if this module is not visible to user.
@@ -161,7 +207,7 @@ class report_editdates_form extends moodleform {
                     }
 
                     // If activity filter is on, then filter module by activity type.
-                    if ($activitytype && ($cm->modname != $activitytype && $activitytype != "all")) {
+                    if ($this->activitytype && ($cm->modname != $this->activitytype && $this->activitytype != "all")) {
                         continue;
                     }
 
@@ -170,34 +216,45 @@ class report_editdates_form extends moodleform {
                     $ismodreadonly = !has_capability('moodle/course:manageactivities', $modulecontext);
 
                     // Display activity name.
-                    $iconmarkup = html_writer::empty_tag('img', array(
-                            'src' => $cm->get_icon_url(), 'class' => 'activityicon', 'alt' => ''));
+                    $iconmarkup = html_writer::empty_tag('img', [
+                        'src' => $cm->get_icon_url(),
+                        'class' => 'activityicon',
+                        'alt' => '',
+                    ]);
                     $stractivityname = html_writer::tag('strong' , $iconmarkup . ' ' . $cm->name . '<hr />');
                     $mform->addElement('html', $stractivityname);
                     $isdateadded = false;
-                    $timeline[$cm->id] = array('type' => $cm->modname,
-                                               'name' => $cm->name,
-                                               'icon' => $iconmarkup,
-                                               'url' => new moodle_url('/course/modedit.php', array('update' => $cm->id)),
-                                               'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
-                                                                   mt_rand( 0, 255 ) . ',' .
-                                                                   mt_rand( 0, 255 ) . ', .5)'
-                                         );
+                    $timeline[$cm->id] = [
+                        'type' => $cm->modname,
+                        'name' => $cm->name,
+                        'icon' => $iconmarkup,
+                        'url' => new moodle_url('/course/modedit.php', ['update' => $cm->id]),
+                        'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
+                                            mt_rand( 0, 255 ) . ',' .
+                                            mt_rand( 0, 255 ) . ', .5)',
+                    ];
+
+                    // Add a textbox for editing the activity name.
+                    $elname = 'name_' . $cm->modname . '_' . $cm->id;
+                    $mform->addElement('text', $elname, get_string('activityname', 'report_editdates'),
+                        ['size' => '64']);
+                    $mform->setType($elname, PARAM_TEXT);
+                    $mform->setDefault($elname, $cm->name);
 
                     // Call get_settings method for the acitivity/module.
                     // Get instance of the mod's date exractor class.
-                    $mod = report_editdates_mod_date_extractor::make($cm->modname, $course);
+                    $mod = report_editdates_mod_date_extractor::make($cm->modname, $this->course);
                     if ($mod && ($cmdatesettings = $mod->get_settings($cm))) {
                         // Added activity name on the form.
                         foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
                             $elname = 'date_mod_'.$cm->id.'_'.$cmdatetype;
                             $mform->addElement($cmdatesetting->type, $elname,
-                                    $cmdatesetting->label, array(
+                                    $cmdatesetting->label, [
                                     'optional' => $cmdatesetting->isoptional,
-                                    'step' => $cmdatesetting->getstep));
+                                    'step' => $cmdatesetting->getstep]);
                             $mform->setDefault($elname, $cmdatesetting->currentvalue);
                             $timeline[$cm->id] = array_merge($timeline[$cm->id],
-                                                             array($cmdatesetting->label => $cmdatesetting->currentvalue));
+                                                             [$cmdatesetting->label => $cmdatesetting->currentvalue]);
                             if ($ismodreadonly) {
                                 $mform->hardFreeze($elname);
                             }
@@ -212,11 +269,11 @@ class report_editdates_form extends moodleform {
                         $elname = 'date_mod_'.$cm->id.'_completionexpected';
                         $mform->addElement('date_time_selector', $elname,
                                 get_string('completionexpected', 'completion'),
-                                array('optional' => true));
+                                ['optional' => true]);
                         $mform->addHelpButton($elname, 'completionexpected', 'completion');
                         $mform->setDefault($elname, $cm->completionexpected);
                         $timeline[$cm->id] = array_merge($timeline[$cm->id],
-                                                         array('completionexpected' => $cm->completionexpected));
+                                                         ['completionexpected' => $cm->completionexpected]);
                         if ($ismodreadonly) {
                             $mform->hardFreeze($elname);
                         }
@@ -229,22 +286,22 @@ class report_editdates_form extends moodleform {
                         if ($cm->availability) {
                             // If there are retricted access date settings.
                             if (strpos($cm->availability, '"type":"date"') !== false) {
-                                $timeline[$cm->id] = array_merge($timeline[$cm->id], array('restrict' => $cm->availability));
-                                $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                                $timeline[$cm->id] = array_merge($timeline[$cm->id], ['restrict' => $cm->availability]);
+                                $editsettingurl = new moodle_url('/course/modedit.php', ['update' => $cm->id]);
                                 $editsettingurltext = html_writer::tag('a',
                                         get_string('editrestrictedaccess', 'report_editdates'),
-                                                array('href' => $editsettingurl->out(false),
+                                                ['href' => $editsettingurl->out(false),
                                                 'target' => '_blank',
-                                                'class' => 'editdates_highlight'));
+                                                'class' => 'editdates_highlight']);
                                 $mform->addElement('static', '',
                                         get_string('hasrestrictedaccess', 'report_editdates', ($cm->name)),
                                                 $editsettingurltext);
                             }
                         } else {
-                            $editsettingurl = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                            $editsettingurl = new moodle_url('/course/modedit.php', ['update' => $cm->id]);
                             $editsettingurltext = html_writer::tag('a',
                                     get_string('addrestrictedaccess', 'report_editdates'),
-                                            array('href' => $editsettingurl->out(false), 'target' => '_blank'));
+                                            ['href' => $editsettingurl->out(false), 'target' => '_blank']);
                             if ($isdateadded) {
                                 $mform->addElement('static', 'modrestrict' . $cm->id,
                                         get_string('norestrictedaccess', 'report_editdates', ($cm->name)),
@@ -264,7 +321,7 @@ class report_editdates_form extends moodleform {
 
         // Fetching all the blocks added directly under the course.
         // That is, parentcontextid = coursecontextid.
-        $courseblocks = $DB->get_records('block_instances', array('parentcontextid' => $coursecontext->id));
+        $courseblocks = $DB->get_records('block_instances', ['parentcontextid' => $coursecontext->id]);
 
         // Check capability of current user.
         $canmanagesiteblocks = has_capability('moodle/site:manageblocks', $coursecontext);
@@ -276,7 +333,7 @@ class report_editdates_form extends moodleform {
 
             // Iterate though blocks array.
             foreach ($courseblocks as $blockid => $block) {
-                $blockdatextrator = report_editdates_block_date_extractor::make($block->blockname, $course);
+                $blockdatextrator = report_editdates_block_date_extractor::make($block->blockname, $this->course);
                 if ($blockdatextrator) {
                     // Create the block instance.
                     $blockobj = block_instance($block->blockname, $block, $PAGE);
@@ -291,8 +348,8 @@ class report_editdates_form extends moodleform {
                             // Add element.
                             $mform->addElement($blockdatesetting->type, $elname,
                                     $blockdatesetting->label,
-                                    array('optional' => $blockdatesetting->isoptional,
-                                    'step' => $blockdatesetting->getstep));
+                                    ['optional' => $blockdatesetting->isoptional,
+                                    'step' => $blockdatesetting->getstep]);
                             $mform->setDefault($elname, $blockdatesetting->currentvalue);
                             if (!$canmanagesiteblocks || !$blockobj->user_can_edit()) {
                                 $mform->hardFreeze($elname);
@@ -321,18 +378,30 @@ class report_editdates_form extends moodleform {
             $mform->addElement('static', 'timelineview', '');
             $mform->addElement('html', self::render_timeline_view($timeline));
         }
+
+        $callbacks = get_plugins_with_function('report_editdates_form_elements', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                // We have exposed all the important properties with public getters - and the callback can manipulate the mform
+                // directly.
+                $pluginfunction($this, $this->_form);
+            }
+        }
     }
 
+    /**
+     * Validation function for form.
+     *
+     * @param array $data form data
+     * @param array $files files
+     * @return array errors
+     */
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
 
-        $modinfo = $this->_customdata['modinfo'];
-        $course = $this->_customdata['course'];
-        $coursecontext = context_course::instance($course->id);
-
-        $moddatesettings = array();
-        $forceddatesettings = array();
+        $moddatesettings = [];
+        $forceddatesettings = [];
         foreach ($data as $key => $value) {
             if ($key == "coursestartdate") {
                 continue;
@@ -355,7 +424,7 @@ class report_editdates_form extends moodleform {
                     // Check if config date settings are forced
                     // and this is one of the forced date setting.
                     if (($CFG->enableavailability || $CFG->enablecompletion )
-                            && in_array($cmsettings['3'], array('completionexpected', 'availablefrom', 'availableuntil'))) {
+                            && in_array($cmsettings['3'], ['completionexpected', 'availablefrom', 'availableuntil'])) {
                         $forceddatesettings[$cmsettings['2']][$cmsettings['3']] = $value;
                     } else {
                         // It is module date setting.
@@ -365,13 +434,13 @@ class report_editdates_form extends moodleform {
             }
         }
 
-        $cms = $modinfo->get_cms();
+        $cms = $this->modinfo->get_cms();
 
         // Validating forced date settings.
         foreach ($forceddatesettings as $modid => $datesettings) {
             // Course module object.
             $cm = $cms[$modid];
-            $moderrors = array();
+            $moderrors = [];
             if (isset($datesettings['availablefrom']) && isset($datesettings['availableuntil'])
                     && $datesettings['availablefrom'] != 0 && $datesettings['availableuntil'] != 0
                     && $datesettings['availablefrom'] > $datesettings['availableuntil'] ) {
@@ -384,14 +453,24 @@ class report_editdates_form extends moodleform {
         foreach ($moddatesettings as $modid => $datesettings) {
             // Course module object.
             $cm = $cms[$modid];
-            $moderrors = array();
+            $moderrors = [];
 
-            if ($mod = report_editdates_mod_date_extractor::make($cm->modname, $course)) {
+            if ($mod = report_editdates_mod_date_extractor::make($cm->modname, $this->course)) {
                 $moderrors = $mod->validate_dates($cm, $datesettings);
                 if (!empty($moderrors)) {
                     foreach ($moderrors as $errorfield => $errorstr) {
                         $errors['date_mod_'.$modid.'_'.$errorfield] = $errorstr;
                     }
+                }
+            }
+        }
+
+        $callbacks = get_plugins_with_function('report_editdates_form_validation', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                $pluginerrors = $pluginfunction($this, $data);
+                if (!empty($pluginerrors)) {
+                    $errors = array_merge($errors, $pluginerrors);
                 }
             }
         }
@@ -405,6 +484,35 @@ class report_editdates_form extends moodleform {
         return $errors;
     }
 
+    /**
+     * Executes callback functions after form data is defined.
+     *
+     * This method retrieves and executes plugin-specific callback functions
+     * that are registered to perform additional operations on the form data
+     * once it has been initially defined. This allows plugins to modify or
+     * extend the form fields and data.
+     */
+    public function definition_after_data() {
+        $callbacks = get_plugins_with_function('report_editdates_form_definition_after_data', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                $pluginfunction($this, $this->_form);
+            }
+        }
+    }
+
+    /**
+     * Render timeline view from activity data.
+     *
+     * This method renders a HTML table that displays a timeline view of the
+     * given activity data. The timeline view shows the activities in a vertical
+     * table, with columns representing individual days. The table is expanded
+     * by one day in either direction. The timeline view is only shown if the
+     * total time span is less than the configured maximum time span.
+     *
+     * @param array $data Activity data.
+     * @return string Rendered timeline view HTML.
+     */
     public function render_timeline_view($data) {
         $data = self::sort_timeline_data($data);
         $config = get_config('report_editdates');
@@ -455,8 +563,14 @@ class report_editdates_form extends moodleform {
         return $output;
     }
 
+    /**
+     * Sorts the timeline data by time.
+     *
+     * @param array $data Activity data.
+     * @return array The sorted timeline data.
+     */
     private function sort_timeline_data($data) {
-        $sorted = array();
+        $sorted = [];
         // Find earliest and latest date.
         foreach ($data as $mod) {
             foreach ($mod as $key => $value) {
@@ -464,22 +578,26 @@ class report_editdates_form extends moodleform {
                     $objects = json_decode($value);
                     foreach ($objects->c as $obj) {
                         if (property_exists($obj, 't') && is_numeric($obj->t) && $obj->t > 0) {
-                            $sorted[] = array('type' => $mod["type"],
-                                              'restric' => true,
-                                              'name' => $mod["name"] . ": Restrict Access",
-                                              'icon' => $mod["icon"],
-                                              'url' => $mod["url"],
-                                              'color' => $mod["color"],
-                                              'time' => $obj->t);
+                            $sorted[] = [
+                                'type' => $mod["type"],
+                                'restric' => true,
+                                'name' => $mod["name"] . ": Restrict Access",
+                                'icon' => $mod["icon"],
+                                'url' => $mod["url"],
+                                'color' => $mod["color"],
+                                'time' => $obj->t,
+                            ];
                         }
                     }
                 } else if (is_numeric($value) && $value > 0 && $key !== "name") {
-                    $sorted[] = array('type' => $mod["type"],
-                                      'name' => $mod["name"] . ": $key",
-                                      'icon' => $mod["icon"],
-                                      'url' => $mod["url"],
-                                      'color' => $mod["color"],
-                                      'time' => $value);
+                    $sorted[] = [
+                        'type' => $mod["type"],
+                        'name' => $mod["name"] . ": $key",
+                        'icon' => $mod["icon"],
+                        'url' => $mod["url"],
+                        'color' => $mod["color"],
+                        'time' => $value,
+                    ];
                 }
             }
         }

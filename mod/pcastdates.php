@@ -14,36 +14,76 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
+/**
+ * This is form to display the modules for editdates reports
+ *
+ * @package   report_editdates
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-
+/**
+ * Simple class capturing the information needed to check
+ * date settings for the pcast module
+ *
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report_editdates_mod_pcast_date_extractor
 extends report_editdates_mod_date_extractor {
 
+    /**
+     * Constructor for the pcast date extractor.
+     *
+     * Initializes the date extractor for pcast modules by invoking
+     * the parent constructor with the course and 'pcast' as the module type.
+     * Additionally, it loads necessary data related to the pcasts.
+     *
+     * @param stdClass $course The course object.
+     */
     public function __construct($course) {
         parent::__construct($course, 'pcast');
         parent::load_data();
     }
 
+    /**
+     * Get a list of date settings for the pcast module instance.
+     *
+     * @param cm_info $cm The course module information.
+     * @return array An array where the keys are setting names ('timeavailable', 'timedue')
+     *               and the values are report_editdates_date_setting objects containing
+     *               the date settings for the pcast.
+     */
     public function get_settings(cm_info $cm) {
         $mod = $this->mods[$cm->instance];
 
         if ($mod->assessed && ( $mod->assesstimestart != 0 || $mod->assesstimefinish != 0) ) {
-            return array('assesstimestart' => new report_editdates_date_setting(
+            return [
+                'assesstimestart' => new report_editdates_date_setting(
                                                     get_string('from'),
                                                     $mod->assesstimestart,
                                                     self::DATETIME, false),
-                         'assesstimefinish' => new report_editdates_date_setting(
+                'assesstimefinish' => new report_editdates_date_setting(
                                                     get_string('to'),
                                                     $mod->assesstimefinish,
-                                                    self::DATETIME, false)
-            );
+                                                    self::DATETIME, false),
+            ];
         }
         return null;
     }
-
+    /**
+     * Validates the submitted dates for an pcast activity.
+     *
+     * This function takes in the course module information and an associative array of date
+     * settings and returns an associative array of validation errors. The keys of the returned
+     * array are the same as the keys of the input array, and the values are error strings.
+     *
+     * @param cm_info $cm the course module information.
+     * @param array $dates an associative array of date settings for the pcast module.
+     * @return array an associative array of validation errors.
+     */
     public function validate_dates(cm_info $cm, array $dates) {
-        $errors = array();
+        $errors = [];
         if ($dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0
                 && $dates['assesstimefinish'] < $dates['assesstimestart']) {
             $errors['assesstimefinish'] = get_string('assesstimefinish', 'report_editdates');

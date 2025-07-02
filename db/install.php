@@ -22,8 +22,26 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
+/**
+ * Upgrades the editdates plugin after install.
+ *
+ * This function is needed when a site is upgrading from a version of Moodle
+ * that had the old 'coursereport_editdates' plugin. It is needed even if the
+ * site is not using the editdates plugin, because some things need to be
+ * fixed in the database.
+ *
+ * The first part of this function is a hack to copy the permission from the
+ * old place, if they were present. If this report is installed into a new
+ * Moodle, we just do what it says in access.php and clone the permissions
+ * from moodle/site:viewreports, but if we are upgrading a Moodle that had the
+ * old course report plugin installed, then we get rid of the new cloned
+ * capabilities, and transfer the old permissions.
+ *
+ * The second part of this function is a hack which is needed for cleanup of
+ * original coursereport_completion stuff.
+ *
+ * The third part of this function is a hack to update existing block page patterns.
+ */
 function xmldb_report_editdates_install() {
     global $DB;
 
@@ -32,10 +50,10 @@ function xmldb_report_editdates_install() {
     // and clone the permissions from moodle/site:viewreports, but if we are upgrading
     // a Moodle that had the old course report plugin installed, then we get rid of the
     // new cloned capabilities, and transfer the old permissions.
-    if ($DB->record_exists('role_capabilities', array('capability' => 'coursereport/editdates:view'))) {
-        $DB->delete_records('role_capabilities', array('capability' => 'report/editdates:view'));
+    if ($DB->record_exists('role_capabilities', ['capability' => 'coursereport/editdates:view'])) {
+        $DB->delete_records('role_capabilities', ['capability' => 'report/editdates:view']);
         $DB->set_field('role_capabilities', 'capability', 'report/editdates:view',
-                array('capability' => 'coursereport/editdates:view'));
+                ['capability' => 'coursereport/editdates:view']);
     }
 
     // This is a hack which is needed for cleanup of original coursereport_completion stuff.
@@ -44,6 +62,6 @@ function xmldb_report_editdates_install() {
 
     // Update existing block page patterns.
     $DB->set_field('block_instances', 'pagetypepattern', 'report-editdates-index',
-            array('pagetypepattern' => 'course-report-editdates-index'));
+            ['pagetypepattern' => 'course-report-editdates-index']);
 }
 

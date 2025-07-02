@@ -15,11 +15,9 @@ Feature: Edit course plugin dates
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
-    And I am on the "Course 1" "course" page logged in as "teacher1"
-    And I turn editing mode on
-    And I add a "Quiz" to section "1" and I fill the form with:
-      | Name        | Test quiz name 1       |
-      | Description | Test quiz description  |
+    And the following "activities" exist:
+      | activity   | name              | intro                     | course |
+      | quiz       | Test quiz name 1  | Test quiz description     | C1     |
     Given I log out
 
   @javascript @_switch_iframe
@@ -28,7 +26,7 @@ Feature: Edit course plugin dates
     And I navigate to "Reports > Dates" in current page administration
     Then I should see "Course 1"
     And I should see "Activity view filter "
-    And I follow "Expand all"
+    And I click on "Expand all" "link" in the "#region-main" "css_element"
     Then I should see "Course start date"
     And I should see "Test quiz name 1"
 
@@ -38,7 +36,7 @@ Feature: Edit course plugin dates
     And I press "Save changes"
     Then I should see "Course 1"
     And I should see "Activity view filter "
-    And I follow "Expand all"
+    And I click on "Expand all" "link" in the "#region-main" "css_element"
     Then I should see "Course start date"
     And I should see "Test quiz name 1"
     And I should see "1" in the "Open the quiz" "fieldset"

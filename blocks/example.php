@@ -25,11 +25,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
-
 /**
- * Example {@link report_editdates_block_date_extractor} subclass.
+ * Example {report_editdates_block_date_extractor} subclass.
  *
  * @copyright 2011 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -40,25 +37,55 @@ class report_editdates_block_html_date_extractor  extends report_editdates_block
      * Constructor.
      * @param object $course course settings from the DB.
      */
+    /**
+     * Constructor for the assignment date extractor.
+     *
+     * Initializes the date extractor for assignment modules by invoking
+     * the parent constructor with the course and 'assignment' as the module type.
+     * Additionally, it loads necessary data related to the assignments.
+     *
+     * @param stdClass $course The course object.
+     */
     public function __construct($course) {
         parent::__construct($course, 'html');
         parent::load_data();
     }
 
+    /**
+     * Return an array of settings for the dates that we handle.
+     *
+     * This function takes in the course module information and returns an associative array
+     * of date settings for the module. The keys of the returned array are the string names
+     * of the settings, and the values are objects of the report_editdates_date_setting class.
+     *
+     * @param block_base $block the block to get the settings for.
+     * @return array an associative array of date settings for the block.
+     */
     public function get_settings(block_base $block) {
         // Check if title text is a valid date then return the array.
         $title = $block->title;
         if ((string) (int) $title === $title) {
-                return array('title' => new report_editdates_date_setting
-                                             (get_string('availabledate', 'assignment'),
-                                             $block->title,
-                                             self::DATETIME, false, 5)
-                );
+                return [
+                    'title' => new report_editdates_date_setting(get_string('availabledate', 'assignment'),
+                                                                 $block->title,
+                                                                 self::DATETIME, false, 5),
+                ];
         }
     }
 
+    /**
+     * Validate the submitted dates for this course_module instance.
+     *
+     * This function takes in the course module information and an associative array of date
+     * settings and returns an associative array of validation errors. The keys of the returned
+     * array are the same as the keys of the input array, and the values are error strings.
+     *
+     * @param block_base $block the block to validate the dates for.
+     * @param array $dates an associative array of date settings for the block.
+     * @return array an associative array of validation errors.
+     */
     public function validate_dates(block_base $block, array $dates) {
-        $errors = array();
+        $errors = [];
         if ($dates['title'] == 0 ) {
             $errors['title'] = get_string('datemustnotzero', 'report_editdates');
         }
