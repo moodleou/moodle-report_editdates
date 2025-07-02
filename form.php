@@ -36,6 +36,49 @@ require_once(dirname(__FILE__) . '/lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_editdates_form extends moodleform {
+
+    /**
+     * Mod info instance set for the form.
+     * @var \course_modinfo|null
+     */
+    protected $modinfo;
+
+    /**
+     * Course.
+     * @var \stdClass
+     */
+    protected $course;
+
+    /**
+     * Selected activity type.
+     * @var string
+     */
+    protected $activitytype;
+
+    /**
+     * Get course mod info instance set for the form.
+     * @return course_modinfo | null
+     */
+    public function get_modinfo(): ?course_modinfo {
+        return $this->modinfo;
+    }
+
+    /**
+     * Course object.
+     * @return \stdClass
+     */
+    public function get_course(): stdClass {
+        return $this->course;
+    }
+
+    /**
+     * Selected activity type.
+     * @return string
+     */
+    public function get_activitytype(): string {
+        return $this->activitytype;
+    }
+
     /**
      * @see lib/moodleform#definition()
      */
@@ -43,19 +86,19 @@ class report_editdates_form extends moodleform {
         global $CFG, $DB, $PAGE;
         $mform = $this->_form;
 
-        $modinfo       = $this->_customdata['modinfo'];
-        $course        = $this->_customdata['course'];
-        $activitytype  = $this->_customdata['activitytype'];
+        $this->modinfo = $this->_customdata['modinfo'];
+        $this->course  = $this->_customdata['course'];
+        $this->activitytype = $this->_customdata['activitytype'];
         $config = get_config('report_editdates');
 
         $coursehasavailability = !empty($CFG->enableavailability);
-        $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($course->enablecompletion);
+        $coursehascompletion   = !empty($CFG->enablecompletion) && !empty($this->course->enablecompletion);
 
         // Context instance of the course.
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = context_course::instance($this->course->id);
 
         // Store current activity type.
-        $mform->addElement('hidden', 'activitytype', $activitytype);
+        $mform->addElement('hidden', 'activitytype', $this->activitytype);
         $mform->setType('activitytype', PARAM_PLUGIN);
 
         // Invisible static element. Used as the holder for a validation message sometimes.
@@ -71,11 +114,11 @@ class report_editdates_form extends moodleform {
 
         $mform->addElement('date_time_selector', 'coursestartdate', get_string('startdate'));
         $mform->addHelpButton('coursestartdate', 'startdate');
-        $mform->setDefault('coursestartdate', $course->startdate);
+        $mform->setDefault('coursestartdate', $this->course->startdate);
 
         $mform->addElement('date_time_selector', 'courseenddate', get_string('enddate'), array('optional' => true));
         $mform->addHelpButton('courseenddate', 'enddate');
-        $mform->setDefault('courseenddate', $course->enddate);
+        $mform->setDefault('courseenddate', $this->course->enddate);
 
         // If user is not capable, make it read only.
         if (!has_capability('moodle/course:update', $coursecontext)) {
@@ -93,8 +136,8 @@ class report_editdates_form extends moodleform {
         $prevsectionnum = -1;
 
         // Cycle through all the sections in the course.
-        $cms = $modinfo->get_cms();
-        $sections = $modinfo->get_section_info_all();
+        $cms = $this->modinfo->get_cms();
+        $sections = $this->modinfo->get_section_info_all();
         $timeline = array();
         foreach ($sections as $sectionnum => $section) {
             $ismodadded = false;
@@ -107,7 +150,7 @@ class report_editdates_form extends moodleform {
 
             // New section, create header.
             if ($prevsectionnum != $sectionnum) {
-                $sectionname = get_section_name($course, $section);
+                $sectionname = get_section_name($this->course, $section);
                 $headername = 'section' . $sectionnum . 'header';
                 $mform->addElement('header', $headername, $sectionname);
                 $mform->setExpanded($headername, false);
@@ -151,8 +194,8 @@ class report_editdates_form extends moodleform {
             }
 
             // Cycle through each module in a section.
-            if (isset($modinfo->sections[$sectionnum])) {
-                foreach ($modinfo->sections[$sectionnum] as $cmid) {
+            if (isset($this->modinfo->sections[$sectionnum])) {
+                foreach ($this->modinfo->sections[$sectionnum] as $cmid) {
                     $cm = $cms[$cmid];
 
                     // No need to display/continue if this module is not visible to user.
@@ -161,7 +204,7 @@ class report_editdates_form extends moodleform {
                     }
 
                     // If activity filter is on, then filter module by activity type.
-                    if ($activitytype && ($cm->modname != $activitytype && $activitytype != "all")) {
+                    if ($this->activitytype && ($cm->modname != $this->activitytype && $this->activitytype != "all")) {
                         continue;
                     }
 
@@ -193,7 +236,7 @@ class report_editdates_form extends moodleform {
 
                     // Call get_settings method for the acitivity/module.
                     // Get instance of the mod's date exractor class.
-                    $mod = report_editdates_mod_date_extractor::make($cm->modname, $course);
+                    $mod = report_editdates_mod_date_extractor::make($cm->modname, $this->course);
                     if ($mod && ($cmdatesettings = $mod->get_settings($cm))) {
                         // Added activity name on the form.
                         foreach ($cmdatesettings as $cmdatetype => $cmdatesetting) {
@@ -283,7 +326,7 @@ class report_editdates_form extends moodleform {
 
             // Iterate though blocks array.
             foreach ($courseblocks as $blockid => $block) {
-                $blockdatextrator = report_editdates_block_date_extractor::make($block->blockname, $course);
+                $blockdatextrator = report_editdates_block_date_extractor::make($block->blockname, $this->course);
                 if ($blockdatextrator) {
                     // Create the block instance.
                     $blockobj = block_instance($block->blockname, $block, $PAGE);
@@ -328,15 +371,20 @@ class report_editdates_form extends moodleform {
             $mform->addElement('static', 'timelineview', '');
             $mform->addElement('html', self::render_timeline_view($timeline));
         }
+
+        $callbacks = get_plugins_with_function('report_editdates_form_elements', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                // We have exposed all the important properties with public getters - and the callback can manipulate the mform
+                // directly.
+                $pluginfunction($this, $this->_form);
+            }
+        }
     }
 
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
-
-        $modinfo = $this->_customdata['modinfo'];
-        $course = $this->_customdata['course'];
-        $coursecontext = context_course::instance($course->id);
 
         $moddatesettings = array();
         $forceddatesettings = array();
@@ -372,7 +420,7 @@ class report_editdates_form extends moodleform {
             }
         }
 
-        $cms = $modinfo->get_cms();
+        $cms = $this->modinfo->get_cms();
 
         // Validating forced date settings.
         foreach ($forceddatesettings as $modid => $datesettings) {
@@ -393,12 +441,22 @@ class report_editdates_form extends moodleform {
             $cm = $cms[$modid];
             $moderrors = array();
 
-            if ($mod = report_editdates_mod_date_extractor::make($cm->modname, $course)) {
+            if ($mod = report_editdates_mod_date_extractor::make($cm->modname, $this->course)) {
                 $moderrors = $mod->validate_dates($cm, $datesettings);
                 if (!empty($moderrors)) {
                     foreach ($moderrors as $errorfield => $errorstr) {
                         $errors['date_mod_'.$modid.'_'.$errorfield] = $errorstr;
                     }
+                }
+            }
+        }
+
+        $callbacks = get_plugins_with_function('report_editdates_form_validation', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                $pluginerrors = $pluginfunction($this, $data);
+                if (!empty($pluginerrors)) {
+                    $errors = array_merge($errors, $pluginerrors);
                 }
             }
         }
@@ -410,6 +468,15 @@ class report_editdates_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    public function definition_after_data() {
+        $callbacks = get_plugins_with_function('report_editdates_form_definition_after_data', 'lib.php');
+        foreach ($callbacks as $type => $plugins) {
+            foreach ($plugins as $plugin => $pluginfunction) {
+                $pluginfunction($this, $this->_form);
+            }
+        }
     }
 
     public function render_timeline_view($data) {
