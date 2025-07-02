@@ -14,21 +14,50 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
+/**
+ * This is form to display the modules for editdates reports
+ *
+ * @package   report_editdates
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-
+/**
+ * Simple class capturing the information needed to check
+ * date settings for the forum module
+ *
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class report_editdates_mod_forum_date_extractor
         extends report_editdates_mod_date_extractor {
 
+    /**
+     * Constructor for the forum date extractor.
+     *
+     * Initializes the date extractor for forum modules by invoking
+     * the parent constructor with the course and 'forum' as the module type.
+     * Additionally, it loads necessary data related to the forums.
+     *
+     * @param stdClass $course The course object.
+     */
     public function __construct($course) {
         parent::__construct($course, 'forum');
         parent::load_data();
     }
 
+    /**
+     * Get a list of date settings for the forum module instance.
+     *
+     * @param cm_info $cm The course module information.
+     * @return array An array where the keys are setting names ('timeavailable', 'timedue')
+     *               and the values are report_editdates_date_setting objects containing
+     *               the date settings for the forum.
+     */
     public function get_settings(cm_info $cm) {
         $forum = $this->mods[$cm->instance];
 
-        $fields = array();
+        $fields = [];
         $fields['duedate'] = new report_editdates_date_setting(
                                            get_string('duedate', 'forum'),
                                            $forum->duedate,
@@ -49,9 +78,19 @@ class report_editdates_mod_forum_date_extractor
         }
         return $fields;
     }
-
+    /**
+     * Validates the submitted dates for an forum activity.
+     *
+     * This function takes in the course module information and an associative array of date
+     * settings and returns an associative array of validation errors. The keys of the returned
+     * array are the same as the keys of the input array, and the values are error strings.
+     *
+     * @param cm_info $cm the course module information.
+     * @param array $dates an associative array of date settings for the forum module.
+     * @return array an associative array of validation errors.
+     */
     public function validate_dates(cm_info $cm, array $dates) {
-        $errors = array();
+        $errors = [];
         $forum = $this->mods[$cm->instance];
         if ($forum->assessed && $dates['assesstimestart'] != 0 && $dates['assesstimefinish'] != 0 &&
                 $dates['assesstimefinish'] < $dates['assesstimestart']) {
@@ -68,6 +107,16 @@ class report_editdates_mod_forum_date_extractor
         return $errors;
     }
 
+    /**
+     * Save the new dates for an forum activity.
+     *
+     * This method updates the forum instance with the new date values provided,
+     * and triggers the necessary calendar event updates and gradebook updates.
+     *
+     * @param cm_info $cm The course module information.
+     * @param array $dates An associative array where keys are date type strings
+     *                     and values are the new date values to be saved.
+     */
     public function save_dates(cm_info $cm, array $dates) {
         global $DB, $COURSE, $CFG;
         parent::save_dates($cm, $dates);

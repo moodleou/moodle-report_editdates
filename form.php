@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * This is form to display the modules for editdates reports
  *
@@ -80,6 +79,9 @@ class report_editdates_form extends moodleform {
     }
 
     /**
+     * This function is used to define the form elements
+     * for the mod_form.php file.
+     *
      * @see lib/moodleform#definition()
      */
     public function definition() {
@@ -172,15 +174,16 @@ class report_editdates_form extends moodleform {
                                         $editsettingurltext);
                         $iconmarkup = html_writer::tag('i', '', ['class' => 'icon fa fa-folder-open',
                                                                       'style' => 'margin: 4px;']);
-                        $timeline['section'.$sectionnum] = ['type' => 'section',
-                                                                 'name' => $sectionname,
-                                                                 'icon' => $iconmarkup,
-                                                                 'url' => $editsettingurl,
-                                                                 'restrict' => $section->availability,
-                                                                 'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
-                                                                                     mt_rand( 0, 255 ) . ',' .
-                                                                                     mt_rand( 0, 255 ) . ', .5)'
-                    ];
+                        $timeline['section'.$sectionnum] = [
+                            'type' => 'section',
+                            'name' => $sectionname,
+                            'icon' => $iconmarkup,
+                            'url' => $editsettingurl,
+                            'restrict' => $section->availability,
+                            'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
+                                                mt_rand( 0, 255 ) . ',' .
+                                                mt_rand( 0, 255 ) . ', .5)',
+                        ];
                     }
                 } else {
                     $editsettingurltext = html_writer::tag('a',
@@ -228,7 +231,7 @@ class report_editdates_form extends moodleform {
                         'url' => new moodle_url('/course/modedit.php', ['update' => $cm->id]),
                         'color' => 'rgb(' . mt_rand( 0, 255 ) . ',' .
                                             mt_rand( 0, 255 ) . ',' .
-                                            mt_rand( 0, 255 ) . ', .5)'
+                                            mt_rand( 0, 255 ) . ', .5)',
                     ];
 
                     // Add a textbox for editing the activity name.
@@ -386,6 +389,13 @@ class report_editdates_form extends moodleform {
         }
     }
 
+    /**
+     * Validation function for form.
+     *
+     * @param array $data form data
+     * @param array $files files
+     * @return array errors
+     */
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
@@ -474,6 +484,14 @@ class report_editdates_form extends moodleform {
         return $errors;
     }
 
+    /**
+     * Executes callback functions after form data is defined.
+     *
+     * This method retrieves and executes plugin-specific callback functions
+     * that are registered to perform additional operations on the form data
+     * once it has been initially defined. This allows plugins to modify or
+     * extend the form fields and data.
+     */
     public function definition_after_data() {
         $callbacks = get_plugins_with_function('report_editdates_form_definition_after_data', 'lib.php');
         foreach ($callbacks as $type => $plugins) {
@@ -483,6 +501,18 @@ class report_editdates_form extends moodleform {
         }
     }
 
+    /**
+     * Render timeline view from activity data.
+     *
+     * This method renders a HTML table that displays a timeline view of the
+     * given activity data. The timeline view shows the activities in a vertical
+     * table, with columns representing individual days. The table is expanded
+     * by one day in either direction. The timeline view is only shown if the
+     * total time span is less than the configured maximum time span.
+     *
+     * @param array $data Activity data.
+     * @return string Rendered timeline view HTML.
+     */
     public function render_timeline_view($data) {
         $data = self::sort_timeline_data($data);
         $config = get_config('report_editdates');
@@ -533,6 +563,12 @@ class report_editdates_form extends moodleform {
         return $output;
     }
 
+    /**
+     * Sorts the timeline data by time.
+     *
+     * @param array $data Activity data.
+     * @return array The sorted timeline data.
+     */
     private function sort_timeline_data($data) {
         $sorted = [];
         // Find earliest and latest date.
@@ -542,22 +578,26 @@ class report_editdates_form extends moodleform {
                     $objects = json_decode($value);
                     foreach ($objects->c as $obj) {
                         if (property_exists($obj, 't') && is_numeric($obj->t) && $obj->t > 0) {
-                            $sorted[] = ['type' => $mod["type"],
-                                              'restric' => true,
-                                              'name' => $mod["name"] . ": Restrict Access",
-                                              'icon' => $mod["icon"],
-                                              'url' => $mod["url"],
-                                              'color' => $mod["color"],
-                                              'time' => $obj->t];
+                            $sorted[] = [
+                                'type' => $mod["type"],
+                                'restric' => true,
+                                'name' => $mod["name"] . ": Restrict Access",
+                                'icon' => $mod["icon"],
+                                'url' => $mod["url"],
+                                'color' => $mod["color"],
+                                'time' => $obj->t,
+                            ];
                         }
                     }
                 } else if (is_numeric($value) && $value > 0 && $key !== "name") {
-                    $sorted[] = ['type' => $mod["type"],
-                                      'name' => $mod["name"] . ": $key",
-                                      'icon' => $mod["icon"],
-                                      'url' => $mod["url"],
-                                      'color' => $mod["color"],
-                                      'time' => $value];
+                    $sorted[] = [
+                        'type' => $mod["type"],
+                        'name' => $mod["name"] . ": $key",
+                        'icon' => $mod["icon"],
+                        'url' => $mod["url"],
+                        'color' => $mod["color"],
+                        'time' => $value,
+                    ];
                 }
             }
         }
