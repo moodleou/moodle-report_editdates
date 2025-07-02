@@ -13,18 +13,9 @@ Feature: Timeline view
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
-    And I add a "Quiz" to section "1" and I fill the form with:
-      | Name | Test quiz              |
-      | Description | Test forum description |
-      | timeopen[enabled] | 1 |
-      | timeopen[day]       | 1 |
-      | timeopen[month]     | January |
-      | timeopen[year]      | 2020 |
-      | timeopen[hour]      | 08 |
-      | timeopen[minute]    | 00 |
+    And the following "activities" exist:
+      | activity   | name       | course |
+      | quiz       | Test quiz  | C1     |
     Given I log out
 
   @javascript @_switch_iframe
@@ -32,17 +23,39 @@ Feature: Timeline view
     Given the following config values are set as admin:
     | timelinemax | 1 | report_editdates |
     When I am on the "Course 1" "course" page logged in as "admin"
+    And I follow "Test quiz"
+    And I follow "Settings"
+    And I expand all fieldsets
+    And I set the following fields to these values:
+      | timeopen[enabled] | 1 |
+      | timeopen[day] | 1 |
+      | timeopen[month] | January |
+      | timeopen[year] | 2025 |
+      | timeopen[hour] | 08 |
+      | timeopen[minute] | 00 |
+    And I press "Save and return to course"
     And I navigate to "Reports > Dates" in current page administration
-    Then I should see "12/31/2019"
-    And I should see "1/1/2020"
-    And I should see "1/2/2020"
+    Then I should see "12/31/2024"
+    And I should see "1/1/2025"
+    And I should see "1/2/2025"
 
   @javascript @_switch_iframe
   Scenario: Test edit dates report to see if timeline view is hidden
     Given the following config values are set as admin:
     | timelinemax | 0 | report_editdates |
     When I am on the "Course 1" "course" page logged in as "admin"
+    And I follow "Test quiz"
+    And I follow "Settings"
+    And I expand all fieldsets
+    And I set the following fields to these values:
+      | timeopen[enabled] | 1 |
+      | timeopen[day] | 1 |
+      | timeopen[month] | January |
+      | timeopen[year] | 2025 |
+      | timeopen[hour] | 08 |
+      | timeopen[minute] | 00 |
+    And I press "Save and return to course"
     And I navigate to "Reports > Dates" in current page administration
-    Then I should not see "12/31/2019"
-    And I should not see "1/1/2020"
-    And I should not see "1/2/2020"
+    Then I should not see "12/31/2024"
+    And I should not see "1/1/2025"
+    And I should not see "1/2/2025"

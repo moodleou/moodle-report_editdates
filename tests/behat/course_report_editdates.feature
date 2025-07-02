@@ -17,9 +17,10 @@ Feature: Edit dates report navigation
       | student1 | C1 | student |
 
   @javascript
-  Scenario: Selector should be available in the Activities and resources page
-    Given I am on the "Course 1" "course" page logged in as "admin"
-    When I navigate to "Reports > Dates" in current page administration
-    Then "Report" "field" should exist
-    And the "Report" select box should contain "Dates"
-    And the field "Report" matches value "Dates"
+  Scenario: Selector should be available in the Dates report page
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    When I navigate to "Reports" in current page administration
+    And I click on "Dates" "link"
+    Then "Report" "field" should exist in the "tertiary-navigation" "region"
+    And I should see "Dates" in the "tertiary-navigation" "region"
