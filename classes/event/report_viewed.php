@@ -23,8 +23,6 @@
 
 namespace report_editdates\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  *
  * @package    report_editdates
@@ -72,7 +70,7 @@ EOF;
      * @return \moodle_url
      */
     public function get_url() {
-        $params = array('id' => $this->courseid);
+        $params = ['id' => $this->courseid];
         if ($this->other['activitytype']) {
             $params['activitytype'] = $this->other['activitytype'];
         }
