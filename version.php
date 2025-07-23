@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2022051600;
-$plugin->requires  = 2020061500;
+$plugin->version   = 2025072300;
+$plugin->requires  = 2024042200;
 $plugin->component = 'report_editdates';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.0 for Moodle 3.11+';
+$plugin->release   = '3.1 for Moodle 4.4+';
 
 $plugin->outestssufficient = true;
