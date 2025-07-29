@@ -81,4 +81,17 @@ class report_editdates_mod_forum_date_extractor
         }
         return $errors;
     }
+
+    public function save_dates(cm_info $cm, array $dates) {
+        global $DB, $COURSE, $CFG;
+        parent::save_dates($cm, $dates);
+
+        require_once($CFG->dirroot.'/mod/forum/locallib.php');
+        $forum = $DB->get_record('forum', ['id' => $cm->instance]);
+        $forum->cmidnumber  = $cm->id;
+
+        // Update the calendar and grades.
+        forum_update_calendar($forum, $cm->id);
+        forum_grade_item_update($forum);
+    }
 }
