@@ -70,8 +70,8 @@
 }
 
 .path-report-editdates a.timelineitem {
-    display: inline-block;
-    margin-bottom: 2px;
+    display: block;
+    margin: 4px;
     border-radius: 5px;
-    padding: 2px;
+    padding: 0;
 }
