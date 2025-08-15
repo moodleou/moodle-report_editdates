@@ -1,5 +1,13 @@
 # Change log for the Edit dates report
 
+## Changes in 3.1
+
+* This version is compatible with Moodle 5.0.
+* Updated automated tests to support newer Moodle versions.
+* Fixed coding style issues.
+* Log events: removed legacy logging methods for compatibility with Moodle 4.2.
+* Removed references to mod_assignment, which was deprecated and removed from core in Moodle 4.2.
+
 ## Changes in 3.0
 
 * This version works with Moodle 4.0.

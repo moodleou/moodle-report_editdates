@@ -33,12 +33,12 @@ $id = required_param('id', PARAM_INT);
 $activitytype = optional_param('activitytype', '', PARAM_PLUGIN);
 
 // Should be a valid course id.
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 require_login($course);
 
 // Setup page.
-$urlparams = array('id' => $id);
+$urlparams = ['id' => $id];
 if ($activitytype) {
     $urlparams['activitytype'] = $activitytype;
 }
@@ -58,7 +58,7 @@ $cms = $modinfo->get_cms();
 // Prepare a list of activity types used in this course, and count the number that
 // might be displayed.
 $activitiesdisplayed = 0;
-$activitytypes = array("all" => get_string('allactivities'));
+$activitytypes = ["all" => get_string('allactivities')];
 foreach ($modinfo->get_sections() as $sectionnum => $section) {
     foreach ($section as $cmid) {
         $cm = $cms[$cmid];
@@ -93,11 +93,17 @@ if (!$activitytype && $activitiesdisplayed > $enablefilterthreshold) {
 }
 
 // Creating the form.
-$baseurl = new moodle_url('/report/editdates/index.php', array('id' => $id));
-$mform = new report_editdates_form($baseurl, array('modinfo' => $modinfo,
-        'course' => $course, 'activitytype' => $activitytype));
+$baseurl = new moodle_url('/report/editdates/index.php', ['id' => $id]);
+$mform = new report_editdates_form(
+    $baseurl,
+    [
+        'modinfo' => $modinfo,
+        'course' => $course,
+        'activitytype' => $activitytype,
+    ]
+);
 
-$returnurl = new moodle_url('/course/view.php', array('id' => $id));
+$returnurl = new moodle_url('/course/view.php', ['id' => $id]);
 if ($mform->is_cancelled()) {
     // Redirect to course view page if form is cancelled.
     redirect($returnurl);
@@ -105,10 +111,10 @@ if ($mform->is_cancelled()) {
 } else if ($data = $mform->get_data()) {
     // Process submitted data.
 
-    $moddatesettings = array();
-    $blockdatesettings = array();
-    $sectiondatesettings = array();
-    $forceddatesettings = array();
+    $moddatesettings = [];
+    $blockdatesettings = [];
+    $sectiondatesettings = [];
+    $forceddatesettings = [];
 
     foreach ($data as $key => $value) {
         if ($key == "coursestartdate") {
@@ -164,8 +170,8 @@ if ($mform->is_cancelled()) {
     $transaction = $DB->start_delegated_transaction();
     // Allow to update only if user is capable.
     if (has_capability('moodle/course:update', $coursecontext)) {
-        $DB->set_field('course', 'startdate', $course->startdate, array('id' => $course->id));
-        $DB->set_field('course', 'enddate', $course->enddate, array('id' => $course->id));
+        $DB->set_field('course', 'startdate', $course->startdate, ['id' => $course->id]);
+        $DB->set_field('course', 'enddate', $course->enddate, ['id' => $course->id]);
     }
 
     // Update forced date settings.
@@ -181,7 +187,7 @@ if ($mform->is_cancelled()) {
 
     // Update section date settings.
     foreach ($sectiondatesettings as $sectionid => $datesettings) {
-        $sectionsettings = array('availablefrom', 'availableuntil');
+        $sectionsettings = ['availablefrom', 'availableuntil'];
         $section = new stdClass();
         $section->id = $sectionid;
         foreach ($sectionsettings as $setting) {
@@ -205,7 +211,7 @@ if ($mform->is_cancelled()) {
 
     // Update block date settings.
     $courseblocks = $DB->get_records("block_instances",
-            array('parentcontextid' => $coursecontext->id));
+        ['parentcontextid' => $coursecontext->id]);
     foreach ($blockdatesettings as $blockid => $datesettings) {
         $block = $courseblocks[$blockid];
 
@@ -234,7 +240,7 @@ $select->set_help_icon('activitytypefilter', 'report_editdates');
 
 // Making log entry.
 $event = \report_editdates\event\report_viewed::create(
-        array('context' => $coursecontext, 'other' => array('activitytype' => $activitytype)));
+    ['context' => $coursecontext, 'other' => ['activitytype' => $activitytype]]);
 $event->trigger();
 
 // Set page title and page heading.
