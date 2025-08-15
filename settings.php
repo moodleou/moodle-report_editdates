@@ -39,4 +39,9 @@ if ($ADMIN->fulltree) {
             get_string('timelinemaxdesc', 'report_editdates'),
             3,
             $options));
+    $settings->add(new admin_setting_configtext('report_editdates/enablefilterthreshold',
+            get_string('enablefilterthreshold', 'report_editdates'),
+            get_string('enablefilterthresholddesc', 'report_editdates'),
+            40,
+            PARAM_INT));
 }

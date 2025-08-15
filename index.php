@@ -27,6 +27,8 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/form.php');
 use core\report_helper;
 
+$enablefilterthreshold = get_config('report_editdates', 'enablefilterthreshold');
+
 $id = required_param('id', PARAM_INT);
 $activitytype = optional_param('activitytype', '', PARAM_PLUGIN);
 
@@ -75,6 +77,20 @@ foreach ($modinfo->get_sections() as $sectionnum => $section) {
     }
 }
 core_collator::asort($activitytypes);
+
+// Append number of activities to the all activities option
+$activitytypes["all"] .= (' (' . $activitiesdisplayed . ')');
+
+// If activity count is above the threshold, activate the filter controls.
+if (!$activitytype && $activitiesdisplayed > $enablefilterthreshold) {
+    if (count($activitytypes) > 1) {
+        $activitytypekey = array_keys($activitytypes)[1];
+    } else {
+        $activitytypekey = array_keys($activitytypes)[0];
+    }
+    redirect(new moodle_url('/report/editdates/index.php',
+        array('id' => $id, 'activitytype' => $activitytypekey)));
+}
 
 // Creating the form.
 $baseurl = new moodle_url('/report/editdates/index.php', ['id' => $id]);
