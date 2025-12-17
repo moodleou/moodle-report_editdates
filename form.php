@@ -464,9 +464,9 @@ class report_editdates_form extends moodleform {
             if ($days < ($config->timelinemax * 365)) { // Timeline day span visibility.
                 $output .= '<table><tr style="height: 65px;">';
                 for ($d = 0; $d <= $days; $d++) { // Create timeline vertical header.
-                    $date = usergetdate($first["time"] + ($d * (60 * 60 * 24)));
+                    $date = $first["time"] + ($d * (60 * 60 * 24));
                     $output .= '<th class="vertical-text"><div><span>' .
-                                    $date['mon'] . '/' . $date['mday'] . '/' . $date['year'] .
+                                    userdate($date, get_string('strftimedatefullshort', 'langconfig')) .
                                 '</span></div></th>';
                 }
                 $output .= '</tr><tr>';
