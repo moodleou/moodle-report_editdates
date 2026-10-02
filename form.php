@@ -477,10 +477,16 @@ class report_editdates_form extends moodleform {
                     foreach ($data as $item) {  // Check each item to see if it occurs on the day.
                         $current = usergetdate($item["time"]);
                         if ($current["year"] . $current["yday"] == $date["year"] . $date["yday"]) {
-                            $output .= '<a target="_blank" class="timelineitem" style="background:' . $item["color"] . '" ' .
-                                           'href="' . $item["url"] . '" title="' . $item["name"] . '">' .
-                                            $item["icon"] .
-                                       '</a>';
+                            $output .= html_writer::link(
+                                $item['url'],
+                                $item['icon'],
+                                [
+                                    'target' => '_blank',
+                                    'class'  => 'timelineitem',
+                                    'style'  => 'background:' . $item['color'],
+                                    'title'  => $item['name'],
+                                ],
+                            );
                         }
                     }
                     $output .= '</td>';
